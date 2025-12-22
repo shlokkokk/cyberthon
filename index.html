@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroRisk Sentinel - Advanced Security Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/splitting@1.0.6/dist/splitting.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --terminal-green: #00ff41;
+            --warning-amber: #ff6b35;
+            --critical-red: #dc143c;
+            --accent-blue: #00d4ff;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300d4ff" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 4v4m0 12v4M4 12h4m12 0h-4"/></svg>') 12 12, crosshair;
+        }
+        
+        body:active {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300ff41" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 4v4m0 12v4M4 12h4m12 0h-4"/></svg>') 12 12, crosshair;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px var(--accent-blue);
+        }
+        
+        .glow-green {
+            box-shadow: 0 0 20px var(--terminal-green);
+        }
+        
+        .glow-red {
+            box-shadow: 0 0 20px var(--critical-red);
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+        
+        .scanning-border {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scanning-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .threat-meter {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(var(--terminal-green) 0deg, var(--warning-amber) 120deg, var(--critical-red) 240deg);
+            padding: 8px;
+        }
+        
+        .threat-meter::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+        }
+        
+        .file-drop-zone {
+            border: 2px dashed var(--accent-blue);
+            transition: all 0.3s ease;
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .file-drop-zone.drag-over {
+            border-color: var(--terminal-green);
+            background: rgba(0, 255, 65, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .terminal-output {
+            background: #000;
+            color: var(--terminal-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--terminal-green);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .nav-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-glow:hover {
+            text-shadow: 0 0 10px var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--terminal-green);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .analysis-card {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .analysis-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+        
+        .analysis-dropdown {
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .analysis-dropdown:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .dropdown-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .dropdown-icon.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .code-example {
+            background: #000;
+            color: var(--terminal-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--terminal-green);
+            margin: 8px 0;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-secondary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--terminal-green), var(--accent-blue));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .safe-file { background: rgba(0, 255, 65, 0.2); color: var(--terminal-green); }
+        .warning-file { background: rgba(255, 107, 53, 0.2); color: var(--warning-amber); }
+        .danger-file { background: rgba(220, 20, 60, 0.2); color: var(--critical-red); }
+        
+        @media (max-width: 768px) {
+            .threat-meter { width: 80px; height: 80px; }
+            .terminal-output { font-size: 12px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background Canvas -->
+    <canvas id="matrixCanvas" class="matrix-bg"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
+                        <img src="resources/zero-logo.png" alt="ZeroRisk Sentinel" class="w-6 h-6">
+                    </div>
+                    <h1 class="font-orbitron text-xl font-bold text-white">ZeroRisk Sentinel</h1>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="nav-glow text-white hover:text-blue-400 px-3 py-2 text-sm font-medium">Scanner</a>
+                    <a href="results.html" class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium">Results</a>
+                    <a href="about.html" class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium">About</a>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <div class="status-indicator"></div>
+                    <span class="text-sm text-gray-300">System Secure</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <!-- Hero Section -->
+        <section class="relative min-h-screen flex items-center justify-center px-4">
+            <div class="max-w-6xl mx-auto text-center">
+                <div class="mb-8">
+                    <h1 class="font-orbitron text-4xl md:text-6xl font-bold mb-4 text-glow">
+                        <span class="text-white">ZeroRisk</span><span class="text-blue-400"> Sentinel</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-300 mb-6">
+                        <span id="typed-text"></span>
+                    </p>
+                </div>
+                
+                <!-- File Drop Zone -->
+                <div class="mb-12">
+                    <div id="fileDropZone" class="file-drop-zone scanning-border rounded-2xl p-12 mb-6 cursor-pointer">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 bg-blue-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                                <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-2 text-white">Drop Files Here to Scan</h3>
+                            <p class="text-gray-400 mb-4">Or click to select files from your device</p>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 glow">
+                                Select Files
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- File Input (Hidden) -->
+                    <input type="file" id="fileInput" multiple class="hidden" accept="*/*">
+                    
+                    <!-- Scanning Progress -->
+                    <div id="scanningProgress" class="hidden">
+                        <div class="bg-gray-900 rounded-lg p-6 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-semibold text-white">Analyzing Files</h4>
+                                <span id="progressText" class="text-blue-400 font-mono">0%</span>
+                            </div>
+                            <div class="progress-bar mb-4">
+                                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div id="currentFile" class="text-gray-400 font-mono text-sm">Initializing scan...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-green-400 mb-2" id="safeCount">0</div>
+                        <div class="text-gray-400">Safe Files</div>
+                    </div>
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-yellow-400 mb-2" id="warningCount">0</div>
+                        <div class="text-gray-400">Warnings</div>
+                    </div>
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-red-400 mb-2" id="threatCount">0</div>
+                        <div class="text-gray-400">Threats</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Analysis Dashboard -->
+        <section class="py-12 px-4">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Real-Time Analysis</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Threat Level Meter -->
+                    <div class="analysis-card rounded-xl p-6">
+                        <h3 class="text-xl font-semibold mb-6 text-white">Overall Threat Level</h3>
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="threat-meter flex items-center justify-center">
+                                <div class="text-center z-10">
+                                    <div id="threatPercentage" class="text-2xl font-bold text-white">0%</div>
+                                    <div class="text-xs text-gray-400">SECURE</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <!-- File Integrity Analysis -->
+                            <div class="analysis-dropdown">
+                                <div class="flex items-center justify-between cursor-pointer" onclick="toggleAnalysisDropdown('integrity')">
+                                    <span class="text-gray-400">File Integrity</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-24 h-2 bg-gray-700 rounded">
+                                            <div id="integrityBar" class="h-full bg-green-400 rounded" style="width: 100%"></div>
+                                        </div>
+                                        <svg class="w-4 h-4 text-gray-400 dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div id="integrityDropdown" class="hidden mt-3 p-4 bg-gray-800 rounded-lg">
+                                    <h4 class="text-white font-semibold mb-2">File Integrity Analysis</h4>
+                                    <p class="text-gray-300 text-sm mb-3">Checks if the file has been tampered with or corrupted by analyzing its structure and comparing against known good patterns.</p>
+                                    <ul class="text-gray-400 text-sm space-y-1">
+                                        <li>• File structure validation</li>
+                                        <li>• Hash signature verification</li>
+                                        <li>• Corruption detection</li>
+                                        <li>• Modification timestamp analysis</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Extension Check -->
+                            <div class="analysis-dropdown">
+                                <div class="flex items-center justify-between cursor-pointer" onclick="toggleAnalysisDropdown('extension')">
+                                    <span class="text-gray-400">Extension Check</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-24 h-2 bg-gray-700 rounded">
+                                            <div id="extensionBar" class="h-full bg-green-400 rounded" style="width: 100%"></div>
+                                        </div>
+                                        <svg class="w-4 h-4 text-gray-400 dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div id="extensionDropdown" class="hidden mt-3 p-4 bg-gray-800 rounded-lg">
+                                    <h4 class="text-white font-semibold mb-2">Extension Spoofing Detection</h4>
+                                    <p class="text-gray-300 text-sm mb-3">Detects when files have misleading extensions to trick users into opening malicious content.</p>
+                                    <div class="code-example text-xs">
+                                        <div class="text-red-400">Dangerous: invoice.pdf.exe</div>
+                                        <div class="text-yellow-400">Appears to be: PDF Document (.pdf)</div>
+                                        <div class="text-blue-400">Actually is: Windows Executable (.exe)</div>
+                                        <div class="text-green-400">[THREAT DETECTED] Extension spoofing attack</div>
+                                    </div>
+                                    <p class="text-gray-400 text-sm mt-3">Attackers often hide .exe files as .pdf, .doc, or .jpg to trick users into executing malware.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Permission Analysis -->
+                            <div class="analysis-dropdown">
+                                <div class="flex items-center justify-between cursor-pointer" onclick="toggleAnalysisDropdown('permission')">
+                                    <span class="text-gray-400">Permission Analysis</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-24 h-2 bg-gray-700 rounded">
+                                            <div id="permissionBar" class="h-full bg-green-400 rounded" style="width: 100%"></div>
+                                        </div>
+                                        <svg class="w-4 h-4 text-gray-400 dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div id="permissionDropdown" class="hidden mt-3 p-4 bg-gray-800 rounded-lg">
+                                    <h4 class="text-white font-semibold mb-2">Permission Risk Assessment</h4>
+                                    <p class="text-gray-300 text-sm mb-3">Analyzes file permissions and access control requirements to identify potential privilege escalation risks.</p>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <h5 class="text-green-400 font-semibold mb-2">Safe Permissions</h5>
+                                            <ul class="text-gray-400 space-y-1">
+                                                <li>• Read-only access</li>
+                                                <li>• User-level execution</li>
+                                                <li>• Standard file operations</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h5 class="text-red-400 font-semibold mb-2">Dangerous Permissions</h5>
+                                            <ul class="text-gray-400 space-y-1">
+                                                <li>• Administrative privileges</li>
+                                                <li>• System-level access</li>
+                                                <li>• Network communication</li>
+                                                <li>• Registry modification</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- File Analysis Queue -->
+                    <div class="analysis-card rounded-xl p-6">
+                        <h3 class="text-xl font-semibold mb-6 text-white">Analysis Queue</h3>
+                        <div id="fileQueue" class="space-y-4 max-h-64 overflow-y-auto">
+                            <div class="text-gray-400 text-center py-8">No files in queue</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terminal Output -->
+                <div class="mt-8">
+                    <div class="analysis-card rounded-xl p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-white">Analysis Console</h3>
+                        <div id="terminalOutput" class="terminal-output">
+                            <div class="text-green-400">ZeroRisk Sentinel v2.1</div>
+                            <div class="text-green-400">Initializing security protocols...</div>
+                            <div class="text-blue-400">[INFO] Signature database loaded: 15,432 patterns</div>
+                            <div class="text-blue-400">[INFO] File header definitions: 127 formats</div>
+                            <div class="text-green-400">[READY] System ready for file analysis</div>
+                            <div class="text-gray-500">────────────────────────────────────────</div>
+                            <div class="text-yellow-400">[AWAITING] Drop files to begin analysis...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Features Section -->
+        <section class="py-12 px-4">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Advanced Security Features</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 mx-auto mb-4 bg-blue-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">File Header Analysis</h3>
+                        <p class="text-gray-400 text-sm">Deep inspection of file signatures and magic numbers to detect spoofed extensions</p>
+                    </div>
+                    
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 mx-auto mb-4 bg-red-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">Malware Detection</h3>
+                        <p class="text-gray-400 text-sm">Advanced signature-based scanning with heuristic analysis for unknown threats</p>
+                    </div>
+                    
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 mx-auto mb-4 bg-yellow-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">Permission Analysis</h3>
+                        <p class="text-gray-400 text-sm">Comprehensive review of file permissions and access control violations</p>
+                    </div>
+                    
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 mx-auto mb-4 bg-green-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">Keylogger Detection</h3>
+                        <p class="text-gray-400 text-sm">Specialized algorithms to identify keystroke logging malware and spyware</p>
+                    </div>
+                    
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 mx-auto mb-4 bg-purple-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">Hex Analysis</h3>
+                        <p class="text-gray-400 text-sm">Low-level hexadecimal inspection to reveal hidden code and data structures</p>
+                    </div>
+                    
+                    <div class="analysis-card rounded-xl p-6 text-center">
+                        <div class="w-12 h-12 mx-auto mb-4 bg-cyan-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-white">Real-time Reports</h3>
+                        <p class="text-gray-400 text-sm">Comprehensive security reports with actionable insights and recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-gray-400">&copy; 2025 ZeroRisk Sentinel. Advanced cybersecurity for the digital age.</p>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+</body>
+</html>

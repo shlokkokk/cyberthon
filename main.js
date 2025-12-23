@@ -1,4 +1,3 @@
-// CyberGuard File Analyzer - Main JavaScript
 class CyberGuardSpywareAnalyzer {
     constructor() {
         this.files = [];
@@ -342,7 +341,6 @@ class CyberGuardSpywareAnalyzer {
             }
 
             analysis.threatScore = Math.min(100, analysis.threatScore);
-            // Heuristic AI confidence scoring based on behavior correlation
             // Heuristic scores are used for relative risk visualization
             // not proof of malicious execution
             analysis.spywareProfile.confidenceScore = Math.min(
@@ -448,7 +446,6 @@ class CyberGuardSpywareAnalyzer {
     }
     
     detectKeylogger(content, filename) {
-        // Enhanced keylogger detection patterns
         const keyloggerPatterns = [
             /GetAsyncKeyState/i,
             /GetKeyboardState/i,
@@ -744,7 +741,6 @@ class CyberGuardSpywareAnalyzer {
     }
     
     initializeAnimations() {
-        // Initialize typed text animation
         new Typed('#typed-text', {
             strings: [
                 'Advanced File Security Analysis',
@@ -758,8 +754,6 @@ class CyberGuardSpywareAnalyzer {
             backDelay: 2000,
             loop: true
         });
-        
-        // Animate cards on scroll
         this.setupScrollAnimations();
     }
     
@@ -939,12 +933,10 @@ Explain why this file is dangerous in simple terms.
 `;
 /*
 This block enables real LLM-based explanations
-via a secure backend API.
-To enable real AI explanations:
-1- Create a backend endpoint (e.g. /api/ai-explain)
-2- Store API keys securely as environment variables
-3- Send summarized analysis data to the backend
-4- Return only plain-text explanations to the UI
+via a secure backend API 
+To enable real AI explanations first create the endpoint which i alr did below
+then store api key securely and uncomment this block.
+connect w backend and return normal text exp to users
 
 For this version, an offline heuristic explanation
 engine is used to ensure consistent behavior

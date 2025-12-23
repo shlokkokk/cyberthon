@@ -7,14 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
-    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/splitting@1.0.6/dist/splitting.css" rel="stylesheet">
     
     <style>
         :root {
@@ -255,10 +250,8 @@
     </style>
 </head>
 <body>
-    <!-- Matrix Background Canvas -->
     <canvas id="matrixCanvas" class="matrix-bg"></canvas>
-    
-    <!-- Navigation -->
+
     <nav class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -277,15 +270,14 @@
                 
                 <div class="flex items-center space-x-3">
                     <div class="status-indicator"></div>
-                    <span class="text-sm text-gray-300">System Secure</span>
+                    <span class="text-sm text-gray-300">Scanner Ready</span>
                 </div>
             </div>
         </div>
     </nav>
     
-    <!-- Main Content -->
     <main class="pt-20 pb-12">
-        <!-- Hero Section -->
+
         <section class="relative min-h-screen flex items-center justify-center px-4">
             <div class="max-w-6xl mx-auto text-center">
                 <div class="mb-8">
@@ -309,8 +301,6 @@
     </button>
 </div>
 
-                
-                <!-- File Drop Zone -->
                 <div class="mb-12">
                     <div id="fileDropZone" class="file-drop-zone scanning-border rounded-2xl p-12 mb-6 cursor-pointer">
                         <div class="text-center">
@@ -344,7 +334,7 @@
                     </div>
                 </div>
                 
-                <!-- Quick Stats -->
+                <!-- Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     <div class="analysis-card rounded-xl p-6 text-center">
                         <div class="text-3xl font-bold text-green-400 mb-2" id="safeCount">0</div>
@@ -362,7 +352,6 @@
             </div>
         </section>
         
-        <!-- Analysis Dashboard -->
         <section class="py-12 px-4">
             <div class="max-w-6xl mx-auto">
                 <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Real-Time Analysis</h2>
@@ -479,15 +468,14 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Terminal Output -->
+      
                 <div class="mt-8">
                     <div class="analysis-card rounded-xl p-6">
                         <h3 class="text-xl font-semibold mb-4 text-white">Analysis Console</h3>
                         <div id="terminalOutput" class="terminal-output">
                             <div class="text-green-400">ZeroRisk Sentinel v2.1</div>
                             <div class="text-green-400">Initializing security protocols...</div>
-                            <div class="text-blue-400">[INFO] Signature database loaded: 15,432 patterns</div>
+                            <div class="text-blue-400">[INFO] Signature database loaded</div>
                             <div class="text-blue-400">[INFO] File header definitions: 127 formats</div>
                             <div class="text-green-400">[READY] System ready for file analysis</div>
                             <div class="text-gray-500">────────────────────────────────────────</div>
@@ -497,8 +485,7 @@
                 </div>
             </div>
         </section>
-        
-        <!-- Features Section -->
+
         <section class="py-12 px-4">
             <div class="max-w-6xl mx-auto">
                 <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Advanced Security Features</h2>
@@ -521,7 +508,7 @@
                             </svg>
                         </div>
                         <h3 class="text-lg font-semibold mb-2 text-white">Malware Detection</h3>
-                        <p class="text-gray-400 text-sm">Advanced signature-based scanning with heuristic analysis for unknown threats</p>
+                        <p class="text-gray-400 text-sm">Signature-based scanning combined with heuristic pattern matching to flag suspicious files</p>
                     </div>
                     
                     <div class="analysis-card rounded-xl p-6 text-center">
@@ -531,7 +518,7 @@
                             </svg>
                         </div>
                         <h3 class="text-lg font-semibold mb-2 text-white">Permission Analysis</h3>
-                        <p class="text-gray-400 text-sm">Comprehensive review of file permissions and access control violations</p>
+                        <p class="text-gray-400 text-sm">Inference of risky permission requirements and access-related indicators</p>
                     </div>
                     
                     <div class="analysis-card rounded-xl p-6 text-center">
@@ -551,7 +538,7 @@
                             </svg>
                         </div>
                         <h3 class="text-lg font-semibold mb-2 text-white">Hex Analysis</h3>
-                        <p class="text-gray-400 text-sm">Low-level hexadecimal inspection to reveal hidden code and data structures</p>
+                        <p class="text-gray-400 text-sm">Low-level hexadecimal inspection to analyze embedded data and file structure</p>
                     </div>
                     
                     <div class="analysis-card rounded-xl p-6 text-center">
@@ -561,7 +548,7 @@
                             </svg>
                         </div>
                         <h3 class="text-lg font-semibold mb-2 text-white">Real-time Reports</h3>
-                        <p class="text-gray-400 text-sm">Comprehensive security reports with actionable insights and recommendations</p>
+                        <p class="text-gray-400 text-sm">Structured scan results with severity indicators and security observations</p>
                     </div>
                 </div>
             </div>

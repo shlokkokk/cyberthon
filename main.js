@@ -34,9 +34,9 @@ class CyberGuardSpywareAnalyzer {
                 { pattern: /ransomware/i, threat: 'critical', description: 'Ransomware detected' },
                 { pattern: /encrypt.*file/i, threat: 'high', description: 'File encryption' },
                 { pattern: /delete.*file/i, threat: 'medium', description: 'File deletion' },
-                { pattern: /registry.*modify/i, threat: 'high', description: 'Registry modification' },
-                { pattern: /startup.*add/i, threat: 'high', description: 'Startup persistence' },
-                { pattern: /network.*send/i, threat: 'medium', description: 'Network communication' },
+                { pattern: /registry.*modify/i, threat: 'high', description: 'Registry modification indicators found in file content' },
+                { pattern: /startup.*add/i, threat: 'high', description: 'Startup persistence indicators found in file content' },
+                { pattern: /network.*send/i, threat: 'medium', description: 'Network-related indicators found in file content' },
                 { pattern: /http.*post/i, threat: 'medium', description: 'HTTP data exfiltration' },
                 { pattern: /ftp.*upload/i, threat: 'high', description: 'FTP data transfer' },
                 { pattern: /email.*send/i, threat: 'medium', description: 'Email data theft' }
@@ -212,7 +212,7 @@ class CyberGuardSpywareAnalyzer {
             findings: [],
             fileHeader: null,
             extensionMismatch: false,
-            permissions: 'unknown',
+            riskExposure: 'unknown',
             malwareDetected: false,
             keyloggerDetected: false,
             spywareProfile: {
@@ -232,7 +232,18 @@ class CyberGuardSpywareAnalyzer {
             
             // Check file type based on header
             const detectedType = this.detectFileType(header);
-            const extension = file.name.split('.').pop().toUpperCase();
+            let extension = file.name.split('.').pop().toUpperCase();
+
+            // Normalize common equivalent extensions
+            const extensionAliases = {
+                JPG: "JPEG",
+                JPEG: "JPEG",
+                HTM: "HTML"
+            };
+
+            if (extensionAliases[extension]) {
+                extension = extensionAliases[extension];
+            }
             
             // Check for extension mismatch
             if (detectedType && detectedType !== extension && detectedType !== 'UNKNOWN') {
@@ -261,6 +272,32 @@ class CyberGuardSpywareAnalyzer {
             const content = await this.readFileContent(file);
             const malwareFindings = this.scanForMalware(content);
             analysis.findings.push(...malwareFindings);
+            // JS-specific heuristic checks (static analysis)
+            const extensionLower = file.name.split('.').pop().toLowerCase();
+            const isJavaScript = extensionLower === "js";
+            const isHtmlOrCss = ['html', 'htm', 'css'].includes(extensionLower);
+
+            if (isJavaScript) {
+                const jsDangerPatterns = [
+                    /eval\s*\(/i,
+                    /Function\s*\(/i,
+                    /atob\s*\(/i,
+                    /fromCharCode/i,
+                    /document\.cookie/i,
+                    /localStorage/i,
+                    /fetch\s*\(/i,
+                    /XMLHttpRequest/i
+                ];      
+                if (jsDangerPatterns.some(p => p.test(content))) {
+                    analysis.findings.push({
+                        type: 'js_abuse',
+                        severity: 'medium',
+                        description: 'Potentially risky JavaScript behavior detected'
+                    });
+                    analysis.threatScore += 10;
+                }
+            }
+
             
             // Calculate threat score from malware findings
             malwareFindings.forEach(finding => {
@@ -279,17 +316,35 @@ class CyberGuardSpywareAnalyzer {
                 analysis.findings.push({
                     type: 'keylogger',
                     severity: 'critical',
-                    description: 'Keylogger behavior patterns detected'
+                    description: 'Keylogger-related code patterns detected'
                 });
                 analysis.threatScore += 60;
             }
+
             // Detect possible data exfiltration behavior
-            if (/http|ftp|upload|post|socket/i.test(content)) {
+            // Applied ONLY to script and web files to avoid false positives
+            if (
+                (isJavaScript || isHtmlOrCss) &&
+                /http|ftp|upload|post|socket/i.test(content)
+            ) {
                 analysis.spywareProfile.dataExfiltration = true;
-                analysis.threatScore += 20;
+
+                if (isHtmlOrCss) {
+                    // Normal browser network behavior
+                    analysis.spywareProfile.networkContext = "web";
+                    analysis.threatScore += 5;
+                } 
+                else if (isJavaScript) {
+                    // JavaScript can be abused
+                    analysis.spywareProfile.networkContext = "script";
+                    analysis.threatScore += 12;
+                }
             }
+
             analysis.threatScore = Math.min(100, analysis.threatScore);
             // Heuristic AI confidence scoring based on behavior correlation
+            // Heuristic scores are used for relative risk visualization
+            // not proof of malicious execution
             analysis.spywareProfile.confidenceScore = Math.min(
                 100,
                 analysis.threatScore +
@@ -307,10 +362,11 @@ class CyberGuardSpywareAnalyzer {
                 )
             );
             if (finalScore >= 80) analysis.threatLevel = 'critical';
-            else if (finalScore >= 50) analysis.threatLevel = 'high';
-            else if (finalScore >= 25) analysis.threatLevel = 'medium';
-            else if (finalScore >= 10) analysis.threatLevel = 'low';
+            else if (finalScore >= 60) analysis.threatLevel = 'high';
+            else if (finalScore >= 30) analysis.threatLevel = 'medium';
+            else if (finalScore >= 15) analysis.threatLevel = 'low';
             else analysis.threatLevel = 'safe';
+
 
             
         } catch (error) {
@@ -692,7 +748,7 @@ class CyberGuardSpywareAnalyzer {
         new Typed('#typed-text', {
             strings: [
                 'Advanced File Security Analysis',
-                'Malware Detection & Prevention',
+                'Malware Detection & Risk Analysis',
                 'Extension Spoofing Detection',
                 'Keylogger Identification',
                 'Real-time Threat Assessment'
@@ -820,7 +876,12 @@ function renderDynamicResults(results) {
                         <li>Surveillance: ${file.spywareProfile.surveillance ? "Yes" : "No"}</li>
                         <li>Persistence: ${file.spywareProfile.persistence ? "Yes" : "No"}</li>
                         <li>Stealth: ${file.spywareProfile.stealth ? "Yes" : "No"}</li>
-                        <li>Data Exfiltration: ${file.spywareProfile.dataExfiltration ? "Yes" : "No"}</li>
+                        <li>
+                        ${file.spywareProfile.networkContext === "web"
+                            ? "Network Activity Detected"
+                            : "Data Exfiltration"}
+                        : ${file.spywareProfile.dataExfiltration ? "Yes" : "No"}
+                        </li>
                         <li>Credential Harvesting: ${file.spywareProfile.credentialHarvesting ? "Yes" : "No"}</li>
                     </ul>
                 </div>
@@ -931,10 +992,17 @@ if (file.spywareProfile.persistence) {
 }
 
 if (file.spywareProfile.dataExfiltration) {
-    explanation.push(
-        "Network-related activity suggests that collected data may be transmitted to external servers, which is a common method used to steal information silently."
-    );
+    if (file.spywareProfile.networkContext === "web") {
+        explanation.push(
+            "This file contains network-related functionality commonly used in web applications, such as loading external resources or making HTTP requests. No indicators of malicious data theft or spyware behavior were detected."
+        );
+    } else {
+        explanation.push(
+            "Network-related activity suggests that collected data may be transmitted to external servers, which is a common technique used by spyware to exfiltrate information silently."
+        );
+    }
 }
+
 
 if (file.keyloggerDetected) {
     explanation.push(

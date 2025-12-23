@@ -211,10 +211,8 @@
     </style>
 </head>
 <body>
-    <!-- Matrix Background Canvas -->
     <canvas id="matrixCanvas" class="matrix-bg"></canvas>
-    
-    <!-- Navigation -->
+
     <nav class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -248,8 +246,9 @@
                     Advanced <span class="text-blue-400">Cybersecurity</span> Methodology
                 </h1>
                 <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                    A transparent and explainable spyware detection methodology based on static analysis,
-                    behavioral indicators, heuristic threat scoring, and AI-assisted explanations.
+                   A transparent and explainable security analysis methodology based on static analysis,
+                    heuristic indicators, behavioral inference, and optional AI-assisted explanations.
+
                 </p>
                 
                 <!-- Key Statistics -->
@@ -273,6 +272,77 @@
                 </div>
             </div>
         </section>
+        <!-- Project Scope & Limitations -->
+<section class="py-12 px-4">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-orbitron text-3xl font-bold text-center mb-8 text-white">
+      Project Scope & Limitations
+    </h2>
+
+    <div class="analysis-card rounded-xl p-6">
+      <p class="text-gray-300 mb-4">
+        ZeroRisk Sentinel is designed as an educational and demonstrative
+        cybersecurity tool that showcases how static analysis and heuristic
+        techniques can be used to assess potential risks in files and URLs
+        before execution or interaction.
+      </p>
+
+      <ul class="feature-list text-gray-300">
+        <li>Performs static analysis only (no file or URL execution)</li>
+        <li>No live browsing, sandboxing, or operating system interaction</li>
+        <li>Detection results are heuristic-based, not definitive proof</li>
+        <li>Does not replace antivirus or enterprise security solutions</li>
+        <li>Designed for learning, demonstration, and academic evaluation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+        <!-- URL Security Analysis Module -->
+<section class="py-12 px-4">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
+      URL Security Analysis Module
+    </h2>
+
+    <div class="methodology-card">
+      <p class="text-gray-300 mb-6">
+        In addition to file inspection, ZeroRisk Sentinel includes a
+        heuristic-based URL security analysis module designed to identify
+        potentially suspicious or deceptive links commonly used in phishing
+        and social engineering attacks.
+      </p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <h4 class="text-lg font-semibold mb-3 text-blue-400">
+            Analysis Techniques
+          </h4>
+          <ul class="feature-list text-gray-300">
+            <li>HTTPS and protocol validation</li>
+            <li>IP-based and shortened URL detection</li>
+            <li>Suspicious top-level domain identification</li>
+            <li>Phishing keyword and brand impersonation patterns</li>
+            <li>URL structure and query parameter inspection</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold mb-3 text-blue-400">
+            Key Characteristics
+          </h4>
+          <ul class="feature-list text-gray-300">
+            <li>No live website access or redirection following</li>
+            <li>No DNS or IP reputation lookups</li>
+            <li>Fully client-side and offline analysis</li>
+            <li>Risk scoring based on weighted heuristic rules</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
         
         <!-- Core Methodology -->
         <section class="py-12 px-4">
@@ -512,6 +582,26 @@ stealth, and data exfiltration to determine overall threat confidence.
                 </div>
             </div>
         </section>
+<!-- System Workflow Overview -->
+<section class="py-12 px-4">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
+      System Workflow Overview
+    </h2>
+
+    <div class="analysis-card rounded-xl p-6">
+      <ol class="list-decimal list-inside text-gray-300 space-y-3">
+        <li>User submits a file or URL for inspection</li>
+        <li>Static data is extracted without execution</li>
+        <li>Heuristic rules and pattern checks are applied</li>
+        <li>Risk scores and threat levels are calculated</li>
+        <li>Findings are correlated into a behavior profile</li>
+        <li>Results are presented with visual indicators and explanations</li>
+      </ol>
+    </div>
+  </div>
+</section>
+ 
         
         <!-- Technology Stack -->
         <section class="py-12 px-4">
@@ -717,7 +807,25 @@ stealth, and data exfiltration to determine overall threat confidence.
             </div>
         </section>
     </main>
-    
+    <!-- Security & Privacy Considerations -->
+<section class="py-12 px-4">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
+      Security & Privacy Considerations
+    </h2>
+
+    <div class="analysis-card rounded-xl p-6">
+      <ul class="feature-list text-gray-300">
+        <li>All analysis is performed locally in the browser</li>
+        <li>No files or URLs are uploaded to external servers</li>
+        <li>No persistent storage of scanned data</li>
+        <li>Session-based data handling for temporary results</li>
+        <li>No tracking, telemetry, or background data collection</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
     <!-- Footer -->
     <footer class="bg-gray-900 border-t border-gray-800 py-8">
         <div class="max-w-6xl mx-auto px-4 text-center">

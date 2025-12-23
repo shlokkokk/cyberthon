@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZeroRisk Sentinel - URL Security Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/splitting@1.0.6/dist/splitting.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #1a1a1a;
+        --terminal-green: #00ff41;
+        --warning-amber: #ff6b35;
+        --critical-red: #dc143c;
+        --accent-blue: #00d4ff;
+        --text-primary: #ffffff;
+        --text-secondary: #e0e0e0;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        line-height: 1.6;
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300d4ff" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 4v4m0 12v4M4 12h4m12 0h-4"/></svg>')
+            12 12,
+          crosshair;
+      }
+      body:active {
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300ff41" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 4v4m0 12v4M4 12h4m12 0h-4"/></svg>')
+            12 12,
+          crosshair;
+      }
+
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .font-orbitron {
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.1;
+      }
+
+      .glow {
+        box-shadow: 0 0 20px var(--accent-blue);
+      }
+      .glow-green {
+        box-shadow: 0 0 20px var(--terminal-green);
+      }
+      .glow-red {
+        box-shadow: 0 0 20px var(--critical-red);
+      }
+
+      .text-glow {
+        text-shadow: 0 0 10px currentColor;
+      }
+
+      .scanning-border {
+        position: relative;
+        overflow: hidden;
+      }
+      .scanning-border::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent-blue),
+          transparent
+        );
+        animation: scan 2s linear infinite;
+      }
+      @keyframes scan {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      .threat-meter {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(
+          var(--terminal-green) 0deg,
+          var(--warning-amber) 120deg,
+          var(--critical-red) 240deg
+        );
+        padding: 8px;
+      }
+      .threat-meter::before {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        background: var(--bg-secondary);
+        border-radius: 50%;
+      }
+
+      .analysis-card {
+        background: rgba(26, 26, 26, 0.8);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      .analysis-card:hover {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+      }
+
+      .nav-glow {
+        transition: all 0.3s ease;
+      }
+      .nav-glow:hover {
+        text-shadow: 0 0 10px var(--accent-blue);
+        color: var(--accent-blue);
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--terminal-green);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .progress-bar {
+        height: 4px;
+        background: var(--bg-secondary);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--terminal-green),
+          var(--accent-blue)
+        );
+        border-radius: 2px;
+        transition: width 0.3s ease;
+        animation: shimmer 2s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .threat-meter {
+          width: 80px;
+          height: 80px;
+        }
+      }
+      .threat-meter {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        position: relative;
+        background: conic-gradient(
+          var(--terminal-green) 0deg,
+          var(--warning-amber) 120deg,
+          var(--critical-red) 240deg
+        );
+        padding: 8px;
+      }
+      #urlInput,
+      #urlInput:focus,
+      #urlInput:-webkit-autofill,
+      #urlInput:-webkit-autofill:hover,
+      #urlInput:-webkit-autofill:focus {
+        background-color: #000000 !important;
+        -webkit-text-fill-color: #22c55e !important;
+        color: #22c55e !important;
+        box-shadow: 0 0 0px 1000px #000000 inset !important;
+        transition: background-color 9999s ease-in-out 0s;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Matrix Background Canvas -->
+    <canvas id="matrixCanvas" class="matrix-bg"></canvas>
+
+    <!-- Navigation -->
+    <nav
+      class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center"
+            >
+              <img
+                src="resources/zero-logo.png"
+                alt="ZeroRisk Sentinel"
+                class="w-6 h-6"
+              />
+            </div>
+            <h1 class="font-orbitron text-xl font-bold text-white">
+              ZeroRisk Sentinel
+            </h1>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="index.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >Scanner</a
+            >
+            <a
+              href="url.html"
+              class="nav-glow text-blue-400 font-semibold px-3 py-2 text-sm font-medium"
+              >URL</a
+            >
+            <a
+              href="results.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >Results</a
+            >
+            <a
+              href="about.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >About</a
+            >
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <div class="status-indicator"></div>
+            <span class="text-sm text-gray-300">System Secure</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-20 pb-12">
+      <!-- Hero Section -->
+      <section
+        class="relative min-h-screen flex items-center justify-center px-4"
+      >
+        <div class="max-w-6xl mx-auto text-center">
+          <div class="mb-8">
+            <h1
+              class="font-orbitron text-4xl md:text-6xl font-bold mb-4 text-glow"
+            >
+              <span class="text-white">ZeroRisk</span
+              ><span class="text-blue-400"> Sentinel</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-6">
+              <span id="typed-text"></span>
+            </p>
+          </div>
+
+          <div class="flex justify-center gap-4 mb-8">
+            <button
+              onclick="window.location.href='index.html'"
+              class="px-6 py-2 rounded-lg bg-gray-700 text-gray-300 font-medium hover:bg-gray-600"
+            >
+              File Analysis
+            </button>
+            <button
+              class="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium"
+            >
+              URL Analysis
+            </button>
+          </div>
+
+          <!-- URL Input Zone -->
+          <div class="mb-12">
+            <div class="file-drop-zone scanning-border rounded-2xl p-12 mb-6">
+              <div class="text-center">
+                <div
+                  class="w-16 h-16 mx-auto mb-4 bg-blue-500 bg-opacity-20 rounded-full flex items-center justify-center"
+                >
+                  <svg
+                    class="w-8 h-8 text-blue-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                    />
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-2 text-white">
+                  Enter URL to Scan
+                </h3>
+                <p class="text-gray-400 mb-4">
+                  Heuristic security check for URLs
+                </p>
+                <div class="relative z-10">
+                  <input
+                    id="urlInput"
+                    type="text"
+                    placeholder="https://example.com"
+                    class="w-full max-w-md mx-auto rounded-lg bg-black border border-green-400/50 text-green-400 placeholder-green-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 mb-4 font-mono"
+                  />
+                </div>
+
+                <button
+                  id="analyzeBtn"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 glow"
+                >
+                  Analyze URL
+                </button>
+              </div>
+            </div>
+
+            <!-- Analysis Progress -->
+            <div id="scanningProgress" class="hidden">
+              <div class="bg-gray-900 rounded-lg p-6 mb-6 max-w-xl mx-auto">
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-lg font-semibold text-white">
+                    Analyzing URL
+                  </h4>
+                  <span id="progressText" class="text-blue-400 font-mono"
+                    >0%</span
+                  >
+                </div>
+                <div class="progress-bar mb-4">
+                  <div
+                    id="progressFill"
+                    class="progress-fill"
+                    style="width: 0%"
+                  ></div>
+                </div>
+                <div id="currentFile" class="text-gray-400 font-mono text-sm">
+                  Initializing scan...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="analysis-card rounded-xl p-6 text-center">
+              <div
+                class="text-3xl font-bold text-green-400 mb-2"
+                id="safeCount"
+              >
+                0
+              </div>
+              <div class="text-gray-400">Safe URLs</div>
+            </div>
+            <div class="analysis-card rounded-xl p-6 text-center">
+              <div
+                class="text-3xl font-bold text-yellow-400 mb-2"
+                id="warningCount"
+              >
+                0
+              </div>
+              <div class="text-gray-400">Warnings</div>
+            </div>
+            <div class="analysis-card rounded-xl p-6 text-center">
+              <div
+                class="text-3xl font-bold text-red-400 mb-2"
+                id="threatCount"
+              >
+                0
+              </div>
+              <div class="text-gray-400">Threats</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analysis Dashboard -->
+      <section class="py-12 px-4 hidden" id="resultsSection">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Real-Time Analysis
+          </h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Threat Level Meter -->
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-xl font-semibold mb-6 text-white">
+                Overall Threat Level
+              </h3>
+
+              <!-- FIXED CONTAINER -->
+              <div
+                class="scanning-border rounded-2xl p-10 mb-6 flex items-center justify-center bg-[rgba(0,212,255,0.05)]"
+              >
+                <div class="threat-meter flex items-center justify-center">
+                  <div class="text-center z-10">
+                    <div
+                      id="threatPercentage"
+                      class="text-2xl font-bold text-white"
+                    >
+                      0%
+                    </div>
+                    <div class="text-xs text-gray-400">SECURE</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-4" id="findingsList"></div>
+            </div>
+
+            <!-- URL Analysis Queue -->
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-xl font-semibold mb-6 text-white">
+                Analysis Queue
+              </h3>
+              <div id="urlQueue" class="space-y-4 max-h-64 overflow-y-auto">
+                <div class="text-gray-400 text-center py-8">
+                  No URLs in queue
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terminal Output -->
+          <div class="mt-8">
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-xl font-semibold mb-4 text-white">
+                Analysis Console
+              </h3>
+              <div
+                id="terminalOutput"
+                class="bg-black text-[var(--terminal-green)] font-mono text-sm leading-6 p-5 rounded-lg border border-[var(--terminal-green)] max-h-[300px] overflow-y-auto"
+              >
+                <div class="text-green-400">ZeroRisk Sentinel v2.1</div>
+                <div class="text-green-400">
+                  Initializing URL security protocols...
+                </div>
+                <div class="text-blue-400">[INFO] Heuristic engine loaded</div>
+                <div class="text-green-400">
+                  [READY] System ready for URL analysis
+                </div>
+                <div class="text-gray-500">
+                  ────────────────────────────────────────
+                </div>
+                <div class="text-yellow-400">
+                  [AWAITING] Enter URL to begin analysis...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-8">
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <p class="text-gray-400">
+          &copy; 2025 ZeroRisk Sentinel. Advanced cybersecurity for the digital
+          age.
+        </p>
+      </div>
+    </footer>
+    <script>
+      // Matrix background
+      const canvas = document.getElementById("matrixCanvas");
+      const ctx = canvas.getContext("2d");
+      let cols, rows;
+      const drops = [];
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        cols = Math.floor(canvas.width / 14);
+        rows = Math.floor(canvas.height / 14);
+        drops.length = 0;
+        for (let i = 0; i < cols; i++) drops[i] = (Math.random() * rows) | 0;
+      }
+      resize();
+      window.addEventListener("resize", resize);
+      function drawMatrix() {
+        ctx.fillStyle = "rgba(10,10,10,0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00ff41";
+        ctx.font = "14px JetBrains Mono";
+        for (let i = 0; i < drops.length; i++) {
+          const text = String.fromCharCode(Math.random() * 128);
+          ctx.fillText(text, i * 14, drops[i] * 14);
+          if (Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        }
+      }
+      setInterval(drawMatrix, 45);
+
+      // Typed.js
+      new Typed("#typed-text", {
+        strings: [
+          "URL Security Analysis",
+          "Heuristic Threat Detection",
+          "Real-time Safety Checks",
+        ],
+        typeSpeed: 40,
+        backSpeed: 40,
+        loop: true,
+      });
+
+ /* 
+      // Heuristic-based URL analysis for educational demonstration.
+      // This does NOT perform live reputation checks or real-time threat intelligence.
+      function heuristicAnalyze(url) {
+        const findings = [];
+        let score = 0;
+
+        if (!url.startsWith("https://")) {
+          findings.push("Non-HTTPS protocol");
+          score += 15;
+        }
+        if (/^(https?:\/\/)?\d+\.\d+\.\d+\.\d+/.test(url)) {
+          findings.push("IP-based URL");
+          score += 25;
+        }
+        if (/\.tk$|\.ml$|\.cf$|\.gq$|\.top$|\.click$|\.download$/.test(url)) {
+          findings.push("Suspicious TLD");
+          score += 20;
+        }
+        if (/bit\.ly|tinyurl|t\.co|short\.link|ow\.ly/.test(url)) {
+          findings.push("URL shortener detected");
+          score += 15;
+        }
+        if (url.length > 80) {
+          findings.push("Overly long URL");
+          score += 10;
+        }
+        if (/[@]/.test(url)) {
+          findings.push("Username in URL");
+          score += 10;
+        }
+        if (/login|verify|secure|account|update/i.test(url)) {
+          findings.push("Credential lure keywords detected");
+          score += 10;
+        }
+
+        if (findings.length === 0) {
+          findings.push("No obvious heuristic issues");
+          score = Math.max(0, score);
+        }
+
+        const threatLevel =
+          score > 60
+            ? "high"
+            : score > 35
+            ? "medium"
+            : score > 15
+            ? "low"
+            : "safe";
+        return { threatLevel, threatScore: Math.min(100, score), findings };
+      }
+    */
+      // DOM
+      const input = document.getElementById("urlInput");
+      const btn = document.getElementById("analyzeBtn");
+      const resultsSection = document.getElementById("resultsSection");
+      const terminalOutput = document.getElementById("terminalOutput");
+
+      btn.addEventListener("click", async () => {
+        const val = input.value.trim().toLowerCase();
+        if (!val) return;
+
+        // Show progress
+        document.getElementById("scanningProgress").classList.remove("hidden");
+        const progressFill = document.getElementById("progressFill");
+        const progressText = document.getElementById("progressText");
+        const currentFile = document.getElementById("currentFile");
+
+        for (let i = 0; i <= 100; i += 10) {
+          progressFill.style.width = i + "%";
+          progressText.textContent = i + "%";
+          currentFile.textContent = `Analyzing URL structure... ${i}%`;
+          await new Promise((r) => setTimeout(r, 150));
+        }
+
+        document.getElementById("scanningProgress").classList.add("hidden");
+        analyzeURL();
+        
+      });
+
+     /* function renderResults({ threatLevel, threatScore, findings }) {
+        resultsSection.classList.remove("hidden");
+        // UPDATE QUICK STATS COUNTERS
+        const safeEl = document.getElementById("safeCount");
+        const warnEl = document.getElementById("warningCount");
+        const threatEl = document.getElementById("threatCount");
+
+        if (threatLevel === "safe") {
+          safeEl.textContent = parseInt(safeEl.textContent) + 1;
+        } else if (threatLevel === "low" || threatLevel === "medium") {
+          warnEl.textContent = parseInt(warnEl.textContent) + 1;
+        } else if (threatLevel === "high") {
+          threatEl.textContent = parseInt(threatEl.textContent) + 1;
+        }
+
+        const colorMap = {
+          safe: "#22c55e",
+          low: "#eab308",
+          medium: "#f97316",
+          high: "#ef4444",
+        };
+
+        document.getElementById("threatPercentage").textContent =
+          threatLevel === "safe" ? "SAFE" : threatScore + "%";
+        document.getElementById("threatPercentage").style.color =
+          colorMap[threatLevel];
+
+        const list = document.getElementById("findingsList");
+        list.innerHTML = "";
+        findings.forEach((f) => {
+          const div = document.createElement("div");
+          div.className = "flex items-center justify-between";
+          div.innerHTML = `<span class="text-gray-300">${f}</span><span class="text-xs text-gray-500">Heuristic</span>`;
+          list.appendChild(div);
+        });
+
+        // Terminal
+        const log = (msg, cls = "text-green-400") => {
+          const line = document.createElement("div");
+          line.className = cls;
+          line.textContent = msg;
+          terminalOutput.appendChild(line);
+          terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        };
+        log("[SCAN] " + input.value, "text-blue-400");
+        log(
+          `[RESULT] Threat Level: ${threatLevel.toUpperCase()} (${threatScore}/100)`,
+          threatScore > 60
+            ? "text-red-400"
+            : threatScore > 35
+            ? "text-yellow-400"
+            : "text-green-400"
+        );
+        findings.forEach((f) => log(`[FINDING] ${f}`, "text-yellow-400"));
+
+        // Animate
+        anime({
+          targets: ".analysis-card",
+          opacity: [0, 1],
+          translateY: [20, 0],
+          delay: anime.stagger(100),
+          easing: "easeOutExpo",
+        });
+      } */   
+    </script>
+    <script src="url-analyzer.js"></script>
+  </body>
+</html>

@@ -1,586 +1,736 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analysis Results - ZeroRisk Spyware Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --terminal-green: #00ff41;
-            --warning-amber: #ff6b35;
-            --critical-red: #dc143c;
-            --accent-blue: #00d4ff;
-            --text-primary: #ffffff;
-            --text-secondary: #e0e0e0;
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #1a1a1a;
+        --terminal-green: #00ff41;
+        --warning-amber: #ff6b35;
+        --critical-red: #dc143c;
+        --accent-blue: #00d4ff;
+        --text-primary: #ffffff;
+        --text-secondary: #e0e0e0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .font-orbitron {
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.1;
+      }
+      /*scrollbar */
+      .analysis-card::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .analysis-card::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .analysis-card::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #00d4ff, #00ff41);
+        border-radius: 10px;
+        box-shadow: 0 0 6px rgba(0, 212, 255, 0.6);
+      }
+
+      /**/
+      .analysis-card {
+        scrollbar-width: thin;
+        scrollbar-color: #00d4ff transparent;
+      }
+
+      .analysis-card {
+        background: rgba(18, 18, 18, 0.98);
+        border: 1px solid rgba(0, 212, 255, 0.35);
+        position: relative;
+        z-index: 10;
+        isolation: isolate;
+
+        overflow: auto; /* scroll instead of cut */
+        max-height: none; /* IMPORTANT */
+      }
+
+      .analysis-card:hover {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+      }
+
+      .threat-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .threat-safe {
+        background: rgba(0, 255, 65, 0.2);
+        color: var(--terminal-green);
+      }
+      .threat-low {
+        background: rgba(0, 212, 255, 0.2);
+        color: var(--accent-blue);
+      }
+      .threat-medium {
+        background: rgba(255, 107, 53, 0.2);
+        color: var(--warning-amber);
+      }
+      .threat-high {
+        background: rgba(220, 20, 60, 0.2);
+        color: var(--critical-red);
+      }
+      .threat-critical {
+        background: rgba(220, 20, 60, 0.3);
+        color: var(--critical-red);
+      }
+
+      .hex-viewer {
+        background: #000;
+        color: var(--terminal-green);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.4;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid var(--terminal-green);
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .finding-card {
+        border-left: 4px solid;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .finding-critical {
+        border-color: var(--critical-red);
+        background: rgba(220, 20, 60, 0.1);
+      }
+      .finding-high {
+        border-color: var(--critical-red);
+        background: rgba(220, 20, 60, 0.1);
+      }
+      .finding-medium {
+        border-color: var(--warning-amber);
+        background: rgba(255, 107, 53, 0.1);
+      }
+      .finding-low {
+        border-color: var(--accent-blue);
+        background: rgba(0, 212, 255, 0.1);
+      }
+
+      .expandable-section {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .expandable-section:hover {
+        background: rgba(0, 212, 255, 0.05);
+      }
+
+      .expand-icon {
+        transition: transform 0.3s ease;
+      }
+
+      .expanded .expand-icon {
+        transform: rotate(180deg);
+      }
+
+      .nav-glow {
+        transition: all 0.3s ease;
+      }
+
+      .nav-glow:hover {
+        text-shadow: 0 0 10px var(--accent-blue);
+        color: var(--accent-blue);
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--terminal-green);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
+        50% {
+          opacity: 0.3;
         }
-        
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.1;
-        }
-        /*scrollbar */
-.analysis-card::-webkit-scrollbar {
-    width: 6px;
-}
+      }
 
-.analysis-card::-webkit-scrollbar-track {
-    background: transparent;
-}
+      .chart-container {
+        height: 300px;
+        width: 100%;
+      }
 
-.analysis-card::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-        180deg,
-        #00d4ff,
-        #00ff41
-    );
-    border-radius: 10px;
-    box-shadow: 0 0 6px rgba(0,212,255,0.6);
-}
+      .recommendation-card {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
 
-/**/
-.analysis-card {
-    scrollbar-width: thin;
-    scrollbar-color: #00d4ff transparent;
-}
+      .action-button {
+        background: var(--accent-blue);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .analysis-card {
-    background: rgba(18,18,18,0.98);
-    border: 1px solid rgba(0, 212, 255, 0.35);
-    position: relative;
-    z-index: 10;
-    isolation: isolate;
+      .action-button:hover {
+        background: #0099cc;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+      }
 
-    overflow: auto;           /* scroll instead of cut */
-    max-height: none;         /* IMPORTANT */
-}
-
-        
-        .analysis-card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-        }
-        
-        .threat-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .threat-safe { background: rgba(0, 255, 65, 0.2); color: var(--terminal-green); }
-        .threat-low { background: rgba(0, 212, 255, 0.2); color: var(--accent-blue); }
-        .threat-medium { background: rgba(255, 107, 53, 0.2); color: var(--warning-amber); }
-        .threat-high { background: rgba(220, 20, 60, 0.2); color: var(--critical-red); }
-        .threat-critical { background: rgba(220, 20, 60, 0.3); color: var(--critical-red); }
-        
+      @media (max-width: 768px) {
         .hex-viewer {
-            background: #000;
-            color: var(--terminal-green);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--terminal-green);
-            max-height: 200px;
-            overflow-y: auto;
+          font-size: 10px;
+          padding: 12px;
         }
-        
-        .finding-card {
-            border-left: 4px solid;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .finding-critical { border-color: var(--critical-red); background: rgba(220, 20, 60, 0.1); }
-        .finding-high { border-color: var(--critical-red); background: rgba(220, 20, 60, 0.1); }
-        .finding-medium { border-color: var(--warning-amber); background: rgba(255, 107, 53, 0.1); }
-        .finding-low { border-color: var(--accent-blue); background: rgba(0, 212, 255, 0.1); }
-        
-        .expandable-section {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .expandable-section:hover {
-            background: rgba(0, 212, 255, 0.05);
-        }
-        
-        .expand-icon {
-            transition: transform 0.3s ease;
-        }
-        
-        .expanded .expand-icon {
-            transform: rotate(180deg);
-        }
-        
-        .nav-glow {
-            transition: all 0.3s ease;
-        }
-        
-        .nav-glow:hover {
-            text-shadow: 0 0 10px var(--accent-blue);
-            color: var(--accent-blue);
-        }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--terminal-green);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
         .chart-container {
-            height: 300px;
-            width: 100%;
+          height: 250px;
         }
-        
-        .recommendation-card {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-        
-        .action-button {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .action-button:hover {
-            background: #0099cc;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
-        }
-        
-        @media (max-width: 768px) {
-            .hex-viewer { font-size: 10px; padding: 12px; }
-            .chart-container { height: 250px; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Matrix Background Canvas -->
     <canvas id="matrixCanvas" class="matrix-bg"></canvas>
-    
+
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center">
-                        <img src="resources/zero-logo.png" alt="ZeroRisk Sentinel" class="w-6 h-6">
-                    </div>
-                    <h1 class="font-orbitron text-xl font-bold text-white">ZeroRisk Sentinel</h1>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium">Scanner</a>
-                    <a href="#" class="nav-glow text-white hover:text-blue-400 px-3 py-2 text-sm font-medium">Results</a>
-                    <a href="about.html" class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium">About</a>
-                </div>
-                
-                <div class="flex items-center space-x-3">
-                    <div class="status-indicator"></div>
-                    <span class="text-sm text-gray-300">Analysis Complete</span>
-                </div>
+    <nav
+      class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-8 h-8 bg-gradient-to-r from-blue-500 to-green-500 rounded-lg flex items-center justify-center"
+            >
+              <img
+                src="resources/zero-logo.png"
+                alt="ZeroRisk Sentinel"
+                class="w-6 h-6"
+              />
             </div>
+            <h1 class="font-orbitron text-xl font-bold text-white">
+              ZeroRisk Sentinel
+            </h1>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="index.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >Scanner</a
+            >
+            <a
+              href="#"
+              class="nav-glow text-white hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >Results</a
+            >
+            <a
+              href="about.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >About</a
+            >
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <div class="status-indicator"></div>
+            <span class="text-sm text-gray-300">Analysis Complete</span>
+          </div>
         </div>
+      </div>
     </nav>
-    
+
     <!-- Main Content -->
     <main class="pt-20 pb-12">
-        <!-- Header Section -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto text-center">
-                <h1 class="font-orbitron text-4xl md:text-5xl font-bold mb-4 text-white">
-                    Security Analysis <span class="text-blue-400">Results</span>
-                </h1>
-                <p class="text-xl text-gray-300 mb-8">Comprehensive file security assessment and threat analysis</p>
-                
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                    <div class="analysis-card rounded-xl p-6">
-                        <div id="filesAnalyzed" class="text-3xl font-bold text-green-400 mb-2">0</div>
-                        <div class="text-gray-400">Files Analyzed</div>
-                    </div>
-                    <div class="analysis-card rounded-xl p-6">
-                        <div id="safeFiles" class="text-3xl font-bold text-blue-400 mb-2">0</div>
-                        <div class="text-gray-400">Safe Files</div>
-                    </div>
-                    <div class="analysis-card rounded-xl p-6">
-                        <div id="warningFiles" class="text-3xl font-bold text-yellow-400 mb-2">0</div>
-                        <div class="text-gray-400">Warnings</div>
-                    </div>
-                    <div class="analysis-card rounded-xl p-6">
-                        <div id="criticalFiles" class="text-3xl font-bold text-red-400 mb-2">0</div>
-                        <div class="text-gray-400">Critical Threats</div>
-                    </div>
-                </div>
+      <!-- Header Section -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+          <h1
+            class="font-orbitron text-4xl md:text-5xl font-bold mb-4 text-white"
+          >
+            Security Analysis <span class="text-blue-400">Results</span>
+          </h1>
+          <p class="text-xl text-gray-300 mb-8">
+            Comprehensive file security assessment and threat analysis
+          </p>
+
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div class="analysis-card rounded-xl p-6">
+              <div
+                id="filesAnalyzed"
+                class="text-3xl font-bold text-green-400 mb-2"
+              >
+                0
+              </div>
+              <div class="text-gray-400">Files Analyzed</div>
             </div>
-        </section>
-        
-        <!-- Detailed Analysis -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                    <!-- Threat Distribution Chart -->
-                    <div class="analysis-card rounded-xl p-6">
-                        <h3 class="text-xl font-semibold mb-6 text-white">Threat Distribution</h3>
-                        <div id="threatChart" class="chart-container"></div>
-                    </div>
-                    
-                    <!-- Security Score Meter -->
-                    <div class="analysis-card rounded-xl p-6">
-                        <h3 class="text-xl font-semibold mb-6 text-white">Overall Security Score</h3>
-                        <div class="flex items-center justify-center mb-6">
-                            <div class="relative w-48 h-48">
-                                <div id="securityScoreChart" class="chart-container"></div>
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold text-white mb-2">Security Score: 67/100</div>
-                            <div class="text-gray-400">Moderate Risk Level</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- File Analysis Details -->
-                <div class="space-y-6">
-                    <h2 class="font-orbitron text-3xl font-bold text-center mb-8 text-white">Detailed File Analysis</h2>
-                    
-                    <!-- REAL RESULTS WILL BE INJECTED HERE -->
-                    <div id="dynamicFileResults" class="space-y-6"></div>
-                </div>
-                
-                <!-- Batch Actions -->
-                <div class="mt-12 text-center">
-                    <h3 class="text-xl font-semibold mb-6 text-white">Batch Actions</h3>
-                    <div class="flex flex-wrap justify-center gap-4">
-                        <button class="action-button" onclick="exportAllReports()">Export All Reports</button>
-                        <button class="action-button" onclick="quarantineAllThreats()">Quarantine All Threats</button>
-                        <button class="action-button" onclick="generateSummaryReport()">Generate Summary Report</button>
-                    </div>
-                </div>
+            <div class="analysis-card rounded-xl p-6">
+              <div id="safeFiles" class="text-3xl font-bold text-blue-400 mb-2">
+                0
+              </div>
+              <div class="text-gray-400">Safe Files</div>
             </div>
-        </section>
+            <div class="analysis-card rounded-xl p-6">
+              <div
+                id="warningFiles"
+                class="text-3xl font-bold text-yellow-400 mb-2"
+              >
+                0
+              </div>
+              <div class="text-gray-400">Warnings</div>
+            </div>
+            <div class="analysis-card rounded-xl p-6">
+              <div
+                id="criticalFiles"
+                class="text-3xl font-bold text-red-400 mb-2"
+              >
+                0
+              </div>
+              <div class="text-gray-400">Critical Threats</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed Analysis -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <div
+            id="fileOverview"
+            class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
+          >
+            <!-- Threat Distribution Chart -->
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-xl font-semibold mb-6 text-white">
+                Threat Distribution
+              </h3>
+              <div id="threatChart" class="chart-container"></div>
+            </div>
+
+            <!-- Security Score Meter -->
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-xl font-semibold mb-6 text-white">
+                Overall Security Score
+              </h3>
+              <div class="flex items-center justify-center mb-6">
+                <div class="relative w-48 h-48">
+                  <div id="securityScoreChart" class="chart-container"></div>
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-white mb-2">
+                  Security Score: 67/100
+                </div>
+                <div class="text-gray-400">Moderate Risk Level</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Analysis Details -->
+          <div id="fileSection" class="space-y-6">
+            <h2
+              class="font-orbitron text-3xl font-bold text-center mb-8 text-white"
+            >
+              Detailed File Analysis
+            </h2>
+
+            <!-- REAL RESULTS WILL BE INJECTED HERE -->
+            <div id="dynamicFileResults" class="space-y-6"></div>
+          </div>
+          <!-- URL Security Analysis -->
+          <div id="urlSection" class="space-y-6 mt-16">
+            <h2
+              class="font-orbitron text-3xl font-bold text-center mb-8 text-white"
+            >
+              URL Security Analysis
+            </h2>
+
+            <!-- URL RESULTS WILL BE INJECTED HERE -->
+            <p class="text-center text-gray-400 text-sm mb-4">
+              Heuristic-based URL risk analysis (no live browsing or execution)
+            </p>
+
+            <div id="urlResults" class="space-y-6"></div>
+          </div>
+
+          <!-- Batch Actions -->
+          <div class="mt-12 text-center">
+            <h3 class="text-xl font-semibold mb-6 text-white">Batch Actions</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+              <button class="action-button" onclick="exportAllReports()">
+                Export All Reports
+              </button>
+              <button class="action-button" onclick="quarantineAllThreats()">
+                Quarantine All Threats
+              </button>
+              <button class="action-button" onclick="generateSummaryReport()">
+                Generate Summary Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
-    
+
     <!-- Footer -->
     <footer class="bg-gray-900 border-t border-gray-800 py-8">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <p class="text-gray-400">&copy; 2025 ZeroRisk Sentinel. Advanced cybersecurity for the digital age.</p>
-        </div>
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <p class="text-gray-400">
+          &copy; 2025 ZeroRisk Sentinel. Advanced cybersecurity for the digital
+          age.
+        </p>
+      </div>
     </footer>
-    
+
     <script>
-        // Initialize matrix background
-        function startMatrixBackground() {
-            const canvas = document.getElementById('matrixCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            const charArray = chars.split('');
-            
-            const fontSize = 14;
-            const columns = canvas.width / fontSize;
-            const drops = Array(Math.floor(columns)).fill(1);
-            
-            function drawMatrix() {
-                ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#00ff41';
-                ctx.font = `${fontSize}px JetBrains Mono`;
-                
-                for (let i = 0; i < drops.length; i++) {
-                    const text = charArray[Math.floor(Math.random() * charArray.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
+      // Initialize matrix background
+      function startMatrixBackground() {
+        const canvas = document.getElementById("matrixCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars =
+          "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+        const charArray = chars.split("");
+
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+          ctx.fillStyle = "rgba(10, 10, 10, 0.04)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "#00ff41";
+          ctx.font = `${fontSize}px JetBrains Mono`;
+
+          for (let i = 0; i < drops.length; i++) {
+            const text =
+              charArray[Math.floor(Math.random() * charArray.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+              drops[i] = 0;
             }
-            
-            setInterval(drawMatrix, 35);
-            
-            window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            });
+            drops[i]++;
+          }
         }
-        
-        // Toggle expandable sections
-        function toggleSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const button = section.previousElementSibling;
-            const icon = button.querySelector('.expand-icon');
-            
-            if (section.classList.contains('hidden')) {
-                section.classList.remove('hidden');
-                button.classList.add('expanded');
-                
-                anime({
-                    targets: section,
-                    opacity: [0, 1],
-                    maxHeight: [0, '1000px'],
-                    duration: 500,
-                    easing: 'easeOutQuart'
-                });
-            } else {
-                anime({
-                    targets: section,
-                    opacity: [1, 0],
-                    maxHeight: ['1000px', 0],
-                    duration: 300,
-                    easing: 'easeInQuart',
-                    complete: () => {
-                        section.classList.add('hidden');
-                        button.classList.remove('expanded');
-                    }
-                });
-            }
+
+        setInterval(drawMatrix, 35);
+
+        window.addEventListener("resize", () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        });
+      }
+
+      // Toggle expandable sections
+      function toggleSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        const button = section.previousElementSibling;
+        const icon = button.querySelector(".expand-icon");
+
+        if (section.classList.contains("hidden")) {
+          section.classList.remove("hidden");
+          button.classList.add("expanded");
+
+          anime({
+            targets: section,
+            opacity: [0, 1],
+            maxHeight: [0, "1000px"],
+            duration: 500,
+            easing: "easeOutQuart",
+          });
+        } else {
+          anime({
+            targets: section,
+            opacity: [1, 0],
+            maxHeight: ["1000px", 0],
+            duration: 300,
+            easing: "easeInQuart",
+            complete: () => {
+              section.classList.add("hidden");
+              button.classList.remove("expanded");
+            },
+          });
         }
-function calculateChartData() {
-    const storedResults = sessionStorage.getItem("analysisResults");
-    if (!storedResults) {
-        return { safe: 0, warning: 0, critical: 0, avgScore: 0 };
-    }
+      }
+      function calculateChartData() {
+        const storedResults = sessionStorage.getItem("analysisResults");
+        if (!storedResults) {
+          return { safe: 0, warning: 0, critical: 0, avgScore: 0 };
+        }
 
-    const results = JSON.parse(storedResults);
+        const results = JSON.parse(storedResults);
 
-    let safe = 0, warning = 0, critical = 0;
-    let totalScore = 0;
+        let safe = 0,
+          warning = 0,
+          critical = 0;
+        let totalScore = 0;
 
-    results.forEach(file => {
-        if (file.threatLevel === "safe") safe++;
-        else if (file.threatLevel === "low" || file.threatLevel === "medium") warning++;
-        else if (file.threatLevel === "high" || file.threatLevel === "critical") critical++;
+        results.forEach((file) => {
+          if (file.threatLevel === "safe") safe++;
+          else if (file.threatLevel === "low" || file.threatLevel === "medium")
+            warning++;
+          else if (
+            file.threatLevel === "high" ||
+            file.threatLevel === "critical"
+          )
+            critical++;
 
-        totalScore += file.threatScore;
-    });
+          totalScore += file.threatScore;
+        });
 
-    const avgThreat = results.length
-        ? Math.round(totalScore / results.length)
-        : 0;
+        const avgThreat = results.length
+          ? Math.round(totalScore / results.length)
+          : 0;
 
-    const avgScore = Math.max(0, 100 - avgThreat);
+        const avgScore = Math.max(0, 100 - avgThreat);
 
+        return { safe, warning, critical, avgScore };
+      }
 
-    return { safe, warning, critical, avgScore };
-}
-        
-        // Initialize charts
-        function initializeCharts() {
-            console.log("CHART DATA →", calculateChartData());
-            const { safe, warning, critical, avgScore } = calculateChartData();
-            const threatChart = echarts.init(document.getElementById('threatChart'));
-            const pieData = [];
+      // Initialize charts
+      function initializeCharts() {
+        console.log("CHART DATA →", calculateChartData());
+        const { safe, warning, critical, avgScore } = calculateChartData();
+        const threatChart = echarts.init(
+          document.getElementById("threatChart")
+        );
+        const pieData = [];
 
-            if (safe > 0) {
-                pieData.push({
-                    value: safe,
-                    name: 'Safe Files',
-                    itemStyle: { color: '#00ff41' }
-                });
-            }
+        if (safe > 0) {
+          pieData.push({
+            value: safe,
+            name: "Safe Files",
+            itemStyle: { color: "#00ff41" },
+          });
+        }
 
-            if (warning > 0) {
-                pieData.push({
-                    value: warning,
-                    name: 'Warnings',
-                    itemStyle: { color: '#ff6b35' }
-                });
-            }
+        if (warning > 0) {
+          pieData.push({
+            value: warning,
+            name: "Warnings",
+            itemStyle: { color: "#ff6b35" },
+          });
+        }
 
-            if (critical > 0) {
-                pieData.push({
-                    value: critical,
-                    name: 'Critical Threats',
-                    itemStyle: { color: '#dc143c' }
-                });
-            }
+        if (critical > 0) {
+          pieData.push({
+            value: critical,
+            name: "Critical Threats",
+            itemStyle: { color: "#dc143c" },
+          });
+        }
 
-            const threatOption = {
-                backgroundColor: 'transparent',
-                tooltip: {
-                    trigger: 'item',
-                    backgroundColor: '#1a1a1a',
-                    borderColor: '#00d4ff',
-                    textStyle: { color: '#ffffff' }
+        const threatOption = {
+          backgroundColor: "transparent",
+          tooltip: {
+            trigger: "item",
+            backgroundColor: "#1a1a1a",
+            borderColor: "#00d4ff",
+            textStyle: { color: "#ffffff" },
+          },
+          series: [
+            {
+              type: "pie",
+              radius: ["40%", "70%"],
+              center: ["50%", "50%"],
+              data: pieData,
+
+              label: {
+                color: "#ffffff",
+                fontSize: 12,
+                formatter: function (params) {
+                  return params.name;
                 },
-                series: [{
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['50%', '50%'],
-                    data: pieData,
+              },
+              labelLine: {
+                show: true,
+                lineStyle: { color: "#ffffff" },
+              },
+            },
+          ],
+        };
+        threatChart.setOption(threatOption);
 
-                    label: {
-                        color: '#ffffff',
-                        fontSize: 12,
-                        formatter: function (params) {
-                            return params.name;
-                        }
-                    },
-                    labelLine: {
-                        show: true,
-                        lineStyle: { color: '#ffffff' }
-                    }
-                }]
-            };
-            threatChart.setOption(threatOption);
-            
-            // Security Score Chart
-            const scoreChart = echarts.init(document.getElementById('securityScoreChart'));
-            const scoreOption = {
-                backgroundColor: 'transparent',
-                series: [{
-                    type: 'gauge',
-                    radius: '100%',
-                    center: ['50%', '50%'],
-                    startAngle: 225,
-                    endAngle: -45,
-                    min: 0,
-                    max: 100,
-                    splitNumber: 10,
-                    axisLine: {
-                        lineStyle: {
-                            width: 15,
-                            color: [
-                                [0.3, '#dc143c'],
-                                [0.7, '#ff6b35'],
-                                [1, '#00ff41']
-                            ]
-                        }
-                    },
-                    pointer: {
-                        icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-                        length: '12%',
-                        width: 20,
-                        offsetCenter: [0, '-60%'],
-                        itemStyle: { color: '#00d4ff' }
-                    },
-                    axisTick: {
-                        length: 12,
-                        lineStyle: { color: 'auto', width: 2 }
-                    },
-                    splitLine: {
-                        length: 20,
-                        lineStyle: { color: 'auto', width: 5 }
-                    },
-                    axisLabel: {
-                        color: '#ffffff',
-                        fontSize: 12,
-                        distance: 25,
-                        formatter: function (value) {
-                            if (value === 0) return '0';
-                            if (value === 50) return '50';
-                            if (value === 100) return '100';
-                            return '';
-                        }
-                    },
-                    detail: {
-                        show: false
-                    },
-                    data: [{ value: avgScore, name: 'Security Score' }]
-                }]
-            };
-            scoreChart.setOption(scoreOption);
-            document.querySelector(".text-2xl").textContent =
-                `Security Score: ${avgScore}/100`;
+        // Security Score Chart
+        const scoreChart = echarts.init(
+          document.getElementById("securityScoreChart")
+        );
+        const scoreOption = {
+          backgroundColor: "transparent",
+          series: [
+            {
+              type: "gauge",
+              radius: "100%",
+              center: ["50%", "50%"],
+              startAngle: 225,
+              endAngle: -45,
+              min: 0,
+              max: 100,
+              splitNumber: 10,
+              axisLine: {
+                lineStyle: {
+                  width: 15,
+                  color: [
+                    [0.3, "#dc143c"],
+                    [0.7, "#ff6b35"],
+                    [1, "#00ff41"],
+                  ],
+                },
+              },
+              pointer: {
+                icon: "path://M12.8,0.7l12,40.1H0.7L12.8,0.7z",
+                length: "12%",
+                width: 20,
+                offsetCenter: [0, "-60%"],
+                itemStyle: { color: "#00d4ff" },
+              },
+              axisTick: {
+                length: 12,
+                lineStyle: { color: "auto", width: 2 },
+              },
+              splitLine: {
+                length: 20,
+                lineStyle: { color: "auto", width: 5 },
+              },
+              axisLabel: {
+                color: "#ffffff",
+                fontSize: 12,
+                distance: 25,
+                formatter: function (value) {
+                  if (value === 0) return "0";
+                  if (value === 50) return "50";
+                  if (value === 100) return "100";
+                  return "";
+                },
+              },
+              detail: {
+                show: false,
+              },
+              data: [{ value: avgScore, name: "Security Score" }],
+            },
+          ],
+        };
+        scoreChart.setOption(scoreOption);
+        document.querySelector(
+          ".text-2xl"
+        ).textContent = `Security Score: ${avgScore}/100`;
 
-            document.querySelector(".text-gray-400").textContent =
-                avgScore <= 30 ? "High Risk Level"
-                : avgScore <= 60 ? "Moderate Risk Level"
-                : "Low Risk Level";
-       
-            // Make charts responsive
-            window.addEventListener('resize', () => {
-                threatChart.resize();
-                scoreChart.resize();
-            });
-        }
-        
-        // Action functions
-        function quarantineFile(filename) {
-            showNotification(`File "${filename}" has been quarantined`, 'success');
-        }
-        
-        function exportDetailedReport(filename) {
-            showNotification(`Detailed report for "${filename}" exported successfully`, 'success');
-        }
-        
-        function shareAnalysis(filename) {
-            showNotification(`Analysis for "${filename}" shared successfully`, 'success');
-        }
-        
-        function exportAllReports() {
-            showNotification('All reports exported successfully', 'success');
-        }
-        
-        function quarantineAllThreats() {
-            showNotification('All detected threats have been quarantined', 'success');
-        }
-        
-        function generateSummaryReport() {
-            showNotification('Summary report generated successfully', 'success');
-        }
-        
-        // Notification system
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
-                type === 'success' ? 'bg-green-600' :
-                type === 'warning' ? 'bg-yellow-600' :
-                type === 'error' ? 'bg-red-600' :
-                'bg-blue-600'
-            } text-white`;
-            
-            notification.innerHTML = `
+        document.querySelector(".text-gray-400").textContent =
+          avgScore < 40
+            ? "High Risk Level"
+            : avgScore < 70
+            ? "Moderate Risk Level"
+            : "Low Risk Level";
+
+        // Make charts responsive
+        window.addEventListener("resize", () => {
+          threatChart.resize();
+          scoreChart.resize();
+        });
+      }
+
+      // Action functions
+      function quarantineFile(filename) {
+        showNotification(`File "${filename}" has been quarantined`, "success");
+      }
+
+      function exportDetailedReport(filename) {
+        showNotification(
+          `Detailed report for "${filename}" exported successfully`,
+          "success"
+        );
+      }
+
+      function shareAnalysis(filename) {
+        showNotification(
+          `Analysis for "${filename}" shared successfully`,
+          "success"
+        );
+      }
+
+      function exportAllReports() {
+        showNotification("All reports exported successfully", "success");
+      }
+
+      function quarantineAllThreats() {
+        showNotification(
+          "All detected threats have been quarantined",
+          "success"
+        );
+      }
+
+      function generateSummaryReport() {
+        showNotification("Summary report generated successfully", "success");
+      }
+
+      // Notification system
+      function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
+        notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+          type === "success"
+            ? "bg-green-600"
+            : type === "warning"
+            ? "bg-yellow-600"
+            : type === "error"
+            ? "bg-red-600"
+            : "bg-blue-600"
+        } text-white`;
+
+        notification.innerHTML = `
                 <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -599,88 +749,189 @@ function calculateChartData() {
                     </div>
                 </div>
             `;
-            
-            document.body.appendChild(notification);
-            
-            anime({
-                targets: notification,
-                translateX: [300, 0],
-                opacity: [0, 1],
-                duration: 300,
-                easing: 'easeOutQuart'
-            });
-            
-            setTimeout(() => {
-                anime({
-                    targets: notification,
-                    translateX: [0, 300],
-                    opacity: [1, 0],
-                    duration: 300,
-                    easing: 'easeInQuart',
-                    complete: () => notification.remove()
-                });
-            }, 5000);
-        }
-        
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            startMatrixBackground();
-            initializeCharts();
-            // LOAD ANALYSIS RESULTS FROM SCANNER
-            const storedResults = sessionStorage.getItem("analysisResults");
 
-            if (storedResults) {
-                const results = JSON.parse(storedResults);
+        document.body.appendChild(notification);
 
-                let safe = 0;
-                let warning = 0;
-                let critical = 0;
-
-                results.forEach(r => {
-                    if (r.threatLevel === "safe") safe++;
-                    else if (r.threatLevel === "low" || r.threatLevel === "medium") warning++;
-                    else if (r.threatLevel === "high" || r.threatLevel === "critical") critical++;
-                });
-
-                document.getElementById("filesAnalyzed").textContent = results.length;
-                document.getElementById("safeFiles").textContent = safe;
-                document.getElementById("warningFiles").textContent = warning;
-                document.getElementById("criticalFiles").textContent = critical;
-                renderDynamicResults(results);
-
-                        // SPYWARE BEHAVIOR PROFILE (FIRST HIGH-RISK FILE)
-                const criticalFile = results.find(r =>
-                    r.threatLevel === "high" || r.threatLevel === "critical"
-                );
-
-            }
-
-            // Animate cards on scroll
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        anime({
-                            targets: entry.target,
-                            opacity: [0, 1],
-                            translateY: [50, 0],
-                            duration: 800,
-                            easing: 'easeOutQuart'
-                        });
-                    }
-                });
-            }, observerOptions);
-            
-            document.querySelectorAll('.analysis-card').forEach(card => {
-                card.style.opacity = '0';
-                observer.observe(card);
-            });
+        anime({
+          targets: notification,
+          translateX: [300, 0],
+          opacity: [0, 1],
+          duration: 300,
+          easing: "easeOutQuart",
         });
+
+        setTimeout(() => {
+          anime({
+            targets: notification,
+            translateX: [0, 300],
+            opacity: [1, 0],
+            duration: 300,
+            easing: "easeInQuart",
+            complete: () => notification.remove(),
+          });
+        }, 5000);
+      }
+
+      // Initialize everything when DOM is loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        startMatrixBackground();
+        initializeCharts();
+        const fileData = JSON.parse(
+          sessionStorage.getItem("analysisResults") || "[]"
+        );
+        const urlOnlyData = JSON.parse(
+          sessionStorage.getItem("urlResults") || "[]"
+        );
+
+        const fileSection = document.getElementById("fileSection");
+        const fileOverview = document.getElementById("fileOverview");
+        const urlSection = document.getElementById("urlSection");
+
+        // If ONLY URL was scanned
+        if (fileData.length === 0 && urlOnlyData.length > 0) {
+          if (fileSection) fileSection.style.display = "none";
+          if (fileOverview) fileOverview.style.display = "none";
+
+          // Prevent fake file stats
+          document.getElementById("filesAnalyzed").textContent = "—";
+          document.getElementById("safeFiles").textContent = "—";
+          document.getElementById("warningFiles").textContent = "—";
+          document.getElementById("criticalFiles").textContent = "—";
+        }
+
+        // If ONLY files were scanned
+        if (fileData.length > 0 && urlOnlyData.length === 0) {
+          if (urlSection) urlSection.style.display = "none";
+        }
+
+        // If nothing was scanned (edge case)
+        if (fileData.length === 0 && urlOnlyData.length === 0) {
+          if (fileSection) fileSection.style.display = "none";
+          if (fileOverview) fileOverview.style.display = "none";
+          if (urlSection) urlSection.style.display = "none";
+        }
+
+        // LOAD ANALYSIS RESULTS FROM SCANNER
+        const storedResults = sessionStorage.getItem("analysisResults");
+
+        if (storedResults) {
+          const results = JSON.parse(storedResults);
+
+          let safe = 0;
+          let warning = 0;
+          let critical = 0;
+
+          results.forEach((r) => {
+            if (r.threatLevel === "safe") safe++;
+            else if (r.threatLevel === "low" || r.threatLevel === "medium")
+              warning++;
+            else if (r.threatLevel === "high" || r.threatLevel === "critical")
+              critical++;
+          });
+
+          document.getElementById("filesAnalyzed").textContent = results.length;
+          document.getElementById("safeFiles").textContent = safe;
+          document.getElementById("warningFiles").textContent = warning;
+          document.getElementById("criticalFiles").textContent = critical;
+          renderDynamicResults(results);
+
+          // SPYWARE BEHAVIOR PROFILE (FIRST HIGH-RISK FILE)
+          const criticalFile = results.find(
+            (r) => r.threatLevel === "high" || r.threatLevel === "critical"
+          );
+        }
+        const urlData = sessionStorage.getItem("urlResults");
+
+        if (urlData) {
+          const results = JSON.parse(urlData);
+          const container = document.getElementById("urlResults");
+
+          results.forEach((r) => {
+            const card = document.createElement("div");
+            card.className = "analysis-card p-6 rounded-xl";
+
+            const badgeClass =
+              r.threatLevel === "safe"
+                ? "threat-safe"
+                : r.threatLevel === "low"
+                ? "threat-low"
+                : r.threatLevel === "medium"
+                ? "threat-medium"
+                : "threat-high";
+            card.innerHTML = `
+    <h3 class="text-lg font-semibold text-white">${r.url}</h3>
+
+    <div class="flex items-center gap-3 mt-2">
+        <span class="text-gray-400">
+            Threat Level: ${r.threatLevel.toUpperCase()}
+        </span>
+        <span class="threat-badge ${badgeClass}">
+            ${r.threatLevel}
+        </span>
+    </div>
+
+    <p class="text-gray-400 mt-1">
+        Risk Score: ${r.threatScore} / 100 (lower is safer)
+    </p>
+
+    <ul class="text-gray-300 mt-3 text-sm">
+        ${r.findings.map((f) => `<li>• ${f}</li>`).join("")}
+    </ul>
+    ${
+      r.explanation
+        ? `
+    <div class="mt-4 p-4 rounded-lg bg-black/80 border border-blue-500/40">
+        <h4 class="text-blue-400 font-semibold mb-2">
+            AI-Assisted Heuristic Explanation
+        </h4>
+
+        <pre class="text-gray-300 text-sm whitespace-pre-wrap font-mono leading-relaxed">
+    ${r.explanation}
+        </pre>
+
+        <p class="text-xs text-gray-500 mt-2">
+    Educational heuristic interpretation • Not definitive proof of malicious intent
+        </p>
+    </div>
+    `
+        : ""
+    }
+
+    <div class="text-xs text-gray-500 mt-3">
+        Scanned at: ${new Date().toLocaleString()}
+    </div>
+            `;
+
+            container.appendChild(card);
+          });
+        }
+
+        // Animate cards on scroll
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: "0px 0px -50px 0px",
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              anime({
+                targets: entry.target,
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 800,
+                easing: "easeOutQuart",
+              });
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll(".analysis-card").forEach((card) => {
+          card.style.opacity = "0";
+          observer.observe(card);
+        });
+      });
     </script>
     <script src="main.js"></script>
-</body>
+  </body>
 </html>

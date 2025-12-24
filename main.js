@@ -1136,9 +1136,10 @@ let touchEndX = 0;
 
 const SWIPE_THRESHOLD = 60;
 const pages = [
-  "index.html",   
-  "results.html", 
-  "about.html"    
+  "index.html",   // File analysis
+  "url.html",     // URL analysis
+  "results.html",
+  "about.html"
 ];
 
 function getCurrentPageIndex() {

@@ -207,6 +207,30 @@
     font-weight: 600;
     color: var(--accent-blue);
 }
+@media (max-width: 768px) {
+  .statistic-text {
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+
+  .statistic-number {
+    font-size: 1.7rem;
+  }
+}
+
+body {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  body.page-exit-left {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  body.page-exit-right {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 
     </style>
 </head>
@@ -916,5 +940,6 @@ stealth, and data exfiltration to determine overall threat confidence.
             }, 1000);
         });
     </script>
+    <script src="main.js"></script>
 </body>
 </html>

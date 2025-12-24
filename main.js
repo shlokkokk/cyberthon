@@ -639,7 +639,9 @@ class CyberGuardSpywareAnalyzer {
             const threatLevel = analysis ? analysis.threatLevel : 'pending';
             
             const fileCard = document.createElement('div');
-            fileCard.className = 'flex items-center space-x-4 p-4 bg-gray-800 rounded-lg';
+            fileCard.className =
+                'flex items-start gap-3 p-4 bg-gray-800 rounded-lg flex-wrap sm:flex-nowrap';
+
             
             const iconClass = this.getFileIconClass(threatLevel);
             const threatColor = this.getThreatColor(threatLevel);
@@ -649,10 +651,12 @@ class CyberGuardSpywareAnalyzer {
                     ${this.getFileExtension(file.name)}
                 </div>
                 <div class="flex-1">
-                    <div class="text-white font-medium">${file.name}</div>
+                    <div class="text-white font-medium truncate max-w-[180px] sm:max-w-none">
+                        ${file.name}
+                    </div>
                     <div class="text-gray-400 text-sm">${this.formatBytes(file.size)}</div>
                 </div>
-                <div class="text-right">
+                <div class="text-right sm:text-right w-full sm:w-auto mt-2 sm:mt-0">
                     <div class="text-sm font-medium ${threatColor}">${threatLevel.toUpperCase()}</div>
                     <div class="text-xs text-gray-400">
                         ${analysis ? `THREAT ${analysis.threatScore}/100` : 'PENDING ANALYSIS'}
@@ -1125,3 +1129,62 @@ function performDeepScan() {
     // This would trigger more intensive analysis
 }
 // url shit 
+// phone swipe
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+const SWIPE_THRESHOLD = 60;
+const pages = [
+  "index.html",   
+  "results.html", 
+  "about.html"    
+];
+
+function getCurrentPageIndex() {
+  let currentPage = window.location.pathname.split("/").pop();
+  if (!currentPage || currentPage === "") {
+    currentPage = "index.html";
+  }
+
+  return pages.indexOf(currentPage);
+}
+
+function handleSwipe() {
+  const deltaX = touchStartX - touchEndX;
+  const currentIndex = getCurrentPageIndex();
+
+  if (currentIndex === -1) return;
+
+  // Swipe LEFT → next page
+  if (deltaX > SWIPE_THRESHOLD && currentIndex < pages.length - 1) {
+    document.body.classList.add("page-exit-left");
+    setTimeout(() => {
+      window.location.href = pages[currentIndex + 1];
+    }, 260);
+  }
+
+  // Swipe RIGHT → previous page
+  if (deltaX < -SWIPE_THRESHOLD && currentIndex > 0) {
+    document.body.classList.add("page-exit-right");
+    setTimeout(() => {
+      window.location.href = pages[currentIndex - 1];
+    }, 260);
+  }
+}
+let touchStartY = 0;
+
+window.addEventListener("touchstart", (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+});
+
+window.addEventListener("touchend", (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  const touchEndY = e.changedTouches[0].screenY;
+
+  // Ignore vertical scroll gestures
+  if (Math.abs(touchEndY - touchStartY) > 80) return;
+
+  handleSwipe();
+});

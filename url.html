@@ -241,6 +241,19 @@
       #urlInput::-webkit-input-placeholder {
         color: rgba(34, 197, 94, 0.45) !important;
       }
+body {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  body.page-exit-left {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  body.page-exit-right {
+    opacity: 0;
+    transform: translateX(20px);
+  }
     </style>
   </head>
   <body class="min-h-screen flex flex-col">

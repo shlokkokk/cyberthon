@@ -244,9 +244,23 @@
         .danger-file { background: rgba(220, 20, 60, 0.2); color: var(--critical-red); }
         
         @media (max-width: 768px) {
-            .threat-meter { width: 80px; height: 80px; }
+            .threat-meter { width: 92px; height: 92px; }
             .terminal-output { font-size: 12px; padding: 15px; }
+            .threat-text div:last-child { font-size: 0.55rem; }
         }
+body {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  body.page-exit-left {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  body.page-exit-right {
+    opacity: 0;
+    transform: translateX(20px);
+  }
     </style>
 </head>
 <body>
@@ -362,7 +376,7 @@
                         <h3 class="text-xl font-semibold mb-6 text-white">Detected Threat Level</h3>
                         <div class="flex items-center justify-center mb-6">
                             <div class="threat-meter flex items-center justify-center">
-                                <div class="text-center z-10">
+                                <div class="threat-text text-center z-10">
                                     <div id="threatPercentage" class="text-2xl font-bold text-white">—</div>
                                     <div class="text-xs text-gray-400">No Files</div>
                                 </div>

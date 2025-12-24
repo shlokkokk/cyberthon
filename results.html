@@ -234,6 +234,19 @@
           height: 250px;
         }
       }
+body {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  body.page-exit-left {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  body.page-exit-right {
+    opacity: 0;
+    transform: translateX(20px);
+  }
     </style>
   </head>
   <body>
@@ -542,7 +555,6 @@
         return { safe, warning, critical, avgScore };
       }
 
-      // Initialize charts
       function initializeCharts() {
         console.log("CHART DATA →", calculateChartData());
         const { safe, warning, critical, avgScore } = calculateChartData();
@@ -555,8 +567,6 @@
         );
         securityGaugeChart = scoreChart;
         lastSecurityScore = avgScore;
-
-        // Threat Proximity Orbit Map (FIXED)
 
         const RAD = Math.PI / 180;
         let orbitAnimationId = null;
@@ -607,7 +617,7 @@
           });
         }
 
-        // ---- Initial static layout (ONLY ONCE)
+        // Initial static layout 
         threatChart.setOption({
           backgroundColor: "transparent",
           grid: { left: 0, right: 0, top: 0, bottom: 0 },
@@ -645,14 +655,13 @@
               ]),
             })),
 
-            // Dots (filled by animation)
+            // dots animation 
             { type: "scatter", data: [] },
             { type: "scatter", data: [] },
             { type: "scatter", data: [] },
           ],
         });
 
-        // CLEAN animation loop
         function animateOrbits() {
           angles.critical += orbitConfig.critical.speed;
           angles.warning += orbitConfig.warning.speed;
@@ -677,7 +686,6 @@
 
         animateOrbits();
 
-        // ---- HARD RESET ON RESIZE (THIS FIXES MOBILE BUG)
         window.addEventListener("resize", () => {
           if (orbitAnimationId) {
             cancelAnimationFrame(orbitAnimationId);

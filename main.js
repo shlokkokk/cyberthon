@@ -17,7 +17,9 @@ class CyberGuardSpywareAnalyzer {
   }
   async checkBackendStatus() {
     try {
-      const res = await fetch("http://localhost:5000/api/status");
+      const res = await fetch(
+        "https://cyberthon-backend.onrender.com/api/status"
+      );
       if (res.ok) {
         this.backendAvailable = true;
         console.log("[BACKEND] APK analyzer online");
@@ -371,6 +373,7 @@ class CyberGuardSpywareAnalyzer {
         extensionUpper === "APK" ||
         detectedType === "APK" ||
         (detectedType === "ZIP" && extensionUpper === "APK");
+      analysis.isAPK = isAPK;
 
       let extension = file.name.split(".").pop().toUpperCase();
 
@@ -402,7 +405,7 @@ class CyberGuardSpywareAnalyzer {
         analysis.threatScore += 30;
       }
 
-      // Check for Right-to-Left Override spoofing
+      // Check for RTL Override spoofing
       if (this.checkRTLOSpoofing(file.name)) {
         analysis.spywareProfile.stealth = true;
         analysis.findings.push({
@@ -413,66 +416,62 @@ class CyberGuardSpywareAnalyzer {
         });
         analysis.threatScore += 50;
       }
-      if (isAPK) {
-        analysis.apkAnalysis = {
-          backendAvailable: this.backendAvailable,
-          status: this.backendAvailable
-            ? "Awaiting deep APK analysis from backend"
-            : "Python backend not running",
-          permissions: [],
-          riskyPermissions: [],
-          riskScore: null,
-          riskLevel: null,
-          explanation: null,
-        };
-
-        analysis.findings.push({
-          type: "apk_detected",
-          severity: "low",
-          description:
-            "Android APK detected. Static browser analysis is limited.",
-        });
-      }
-
       // Scan for malware signatures
       const content = isAPK ? "" : await this.readFileContent(file);
+
       if (isAPK && this.backendAvailable) {
         try {
           const formData = new FormData();
           formData.append("file", file);
 
-          const res = await fetch("http://localhost:5000/api/analyze-apk", {
-            method: "POST",
-            body: formData,
-          });
+          const res = await fetch(
+            "https://cyberthon-backend.onrender.com/api/analyze-apk",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
-          if (res.ok) {
-            const backend = await res.json();
+          const backend = await res.json();
 
-            if (backend.success) {
-              analysis.apkAnalysis = {
-                backendAvailable: true,
-                ...backend.data,
-              };
+          if (backend.success) {
+            analysis.apkAnalysis = {
+              backendAvailable: true,
 
-              // Merge APK risk into global score
-              analysis.threatScore = Math.min(
-                100,
-                analysis.threatScore + backend.data.risk_score
-              );
+              riskScore: backend.data.risk_score,
+              riskLevel: backend.data.risk_level,
+              riskyPermissions: backend.data.risky_permissions,
+              explanation: backend.data.explanation,
 
-              analysis.findings.push({
+              apkMetadata: backend.data.apk_metadata,
+            };
+
+            analysis.threatScore = backend.data.risk_score;
+            analysis.threatLevel = backend.data.risk_level;
+
+            analysis.spywareProfile = null;
+            analysis.keyloggerDetected = false;
+            analysis.riskExposure = "Permission-based Android analysis";
+
+            analysis.findings = [
+              {
                 type: "apk_backend",
                 severity: backend.data.risk_level,
                 description:
-                  "Deep APK permission analysis completed by backend",
-              });
-            }
+                  "Deep APK permission analysis completed by Python backend",
+              },
+            ];
+
+            return analysis;
           }
         } catch (e) {
-          analysis.apkAnalysis.status = "Backend APK analysis failed";
+          analysis.apkAnalysis = {
+            backendAvailable: false,
+            status: "Backend APK analysis failed",
+          };
         }
       }
+
       const malwareFindings = this.scanForMalware(content);
       analysis.findings.push(...malwareFindings);
       // JS-specific heuristic checks (static analysis)
@@ -562,10 +561,15 @@ class CyberGuardSpywareAnalyzer {
         else if (level === "low") analysis.threatLevel = "low";
       }
 
+      const confidenceScore = analysis.spywareProfile
+        ? analysis.spywareProfile.confidenceScore
+        : 0;
+
       const finalScore = Math.min(
         100,
-        Math.max(analysis.threatScore, analysis.spywareProfile.confidenceScore)
+        Math.max(analysis.threatScore, confidenceScore)
       );
+
       if (finalScore >= 80) analysis.threatLevel = "critical";
       else if (finalScore >= 60) analysis.threatLevel = "high";
       else if (finalScore >= 30) analysis.threatLevel = "medium";
@@ -1083,8 +1087,95 @@ function renderDynamicResults(results) {
   container.innerHTML = "";
 
   results.forEach((file, index) => {
+    const isAPK =
+      file.isAPK === true &&
+      file.apkAnalysis &&
+      file.apkAnalysis.backendAvailable === true;
     const sectionId = `fileDetails_${index}`;
     const aiId = `aiExplain_${index}`;
+    if (isAPK) {
+      const apkSectionId = `apkDetails_${index}`;
+
+      const card = document.createElement("div");
+      card.className = "analysis-card rounded-xl p-6 border border-blue-500/40";
+
+      card.innerHTML = `
+        <div class="expandable-section flex justify-between items-center p-4 rounded-lg"
+             onclick="toggleSection('${apkSectionId}')">
+          <div>
+            <h3 class="text-lg font-semibold text-white">
+              📱 ${file.name}
+            </h3>
+            <p class="text-gray-400 text-sm">
+              Android APK Security Analysis
+            </p>
+          </div>
+
+          <span class="threat-badge threat-${
+            file.apkAnalysis?.riskLevel || "unknown"
+          }">
+            ${(file.apkAnalysis?.riskLevel || "unknown").toUpperCase()}
+          </span>
+        </div>
+
+        <div id="${apkSectionId}" class="hidden mt-6 space-y-6">
+
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              Risk Score:
+              <span class="text-red-400 font-semibold">
+                ${file.apkAnalysis.riskScore}/100
+              </span>
+            </div>
+            <div>
+              Verdict:
+              <span class="text-red-400 font-semibold">
+                ${file.apkAnalysis.riskLevel.toUpperCase()}
+              </span>
+            </div>
+          </div>
+
+          <div class="text-sm text-gray-300">
+            <span class="text-blue-400 font-semibold">
+              Why this APK is risky:
+            </span>
+            <p class="mt-2">
+              ${file.apkAnalysis.explanation}
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-white font-semibold mb-2">
+              Dangerous Permissions
+            </h4>
+            <ul class="list-disc ml-5 text-sm text-gray-300 space-y-1">
+              ${
+                file.apkAnalysis.riskyPermissions.length
+                  ? file.apkAnalysis.riskyPermissions
+                      .map(
+                        (p) =>
+                          `<li>
+                            <span class="text-red-400">${p.permission}</span>
+                            <span class="text-gray-400">
+                              (${p.severity}) – ${p.reason}
+                            </span>
+                          </li>`
+                      )
+                      .join("")
+                  : "<li>No high-risk permissions detected</li>"
+              }
+            </ul>
+          </div>
+
+          <div class="text-xs text-gray-500">
+            Static permission-based analysis • No runtime execution
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+      return;
+    }
 
     const card = document.createElement("div");
     card.className = "analysis-card rounded-xl p-6";
@@ -1175,65 +1266,6 @@ function renderDynamicResults(results) {
                         .join("")}
                     </ul>  
                 </div>
-                ${
-                  file.apkAnalysis
-                    ? `
-                <!-- APK ANALYSIS -->
-                <div class="analysis-card p-4 border border-blue-500/30">
-                  <h4 class="text-blue-400 font-semibold mb-2">
-                    Android APK Deep Analysis
-                  </h4>
-                                
-                  ${
-                    !file.apkAnalysis.backendAvailable
-                      ? `
-                        <p class="text-yellow-400 text-sm">
-                          Python backend not running. Deep APK analysis unavailable.
-                        </p>
-                      `
-                      : `
-                        <div class="text-sm text-gray-300 space-y-2">
-                          <div>
-                            <span class="text-gray-400">Risk Level:</span>
-                            <span class="text-red-400 font-semibold">
-                              ${file.apkAnalysis.riskLevel?.toUpperCase()}
-                            </span>
-                          </div>
-                
-                          <div>
-                            <span class="text-gray-400">Risk Score:</span>
-                            ${file.apkAnalysis.riskScore}/100
-                          </div>
-                
-                          <div>
-                            <span class="text-gray-400">Explanation:</span><br />
-                            ${file.apkAnalysis.explanation}
-                          </div>
-                
-                          <div>
-                            <span class="text-gray-400">Dangerous Permissions:</span>
-                            <ul class="list-disc ml-5 mt-1 space-y-1">
-                              ${
-                                file.apkAnalysis.riskyPermissions.length
-                                  ? file.apkAnalysis.riskyPermissions
-                                      .map(
-                                        (p) =>
-                                          `<li>${p.permission} (${p.severity}) – ${p.reason}</li>`
-                                      )
-                                      .join("")
-                                  : "<li>No high-risk permissions detected</li>"
-                              }
-                            </ul>
-                          </div>
-                        </div>
-                      `
-                  }
-                </div>
-                `
-                    : ""
-                }
-
-
                 <!-- AI EXPLANATION -->
                 <div class="analysis-card p-4">
                     <h4 class="text-blue-400 font-semibold mb-2">
@@ -1249,7 +1281,9 @@ function renderDynamicResults(results) {
     container.appendChild(card);
 
     // Call AI explanation
-    runAIExplanation(file, aiId);
+    if (!isAPK) {
+      runAIExplanation(file, aiId);
+    }
   });
 }
 async function runAIExplanation(file, targetId) {

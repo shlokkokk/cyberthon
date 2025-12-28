@@ -1,768 +1,922 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About & Methodology - CyberGuard File Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="logofav.png">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="logofav.png" />
+
     <style>
-        :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --terminal-green: #00ff41;
-            --warning-amber: #ff6b35;
-            --critical-red: #dc143c;
-            --accent-blue: #00d4ff;
-            --text-primary: #ffffff;
-            --text-secondary: #e0e0e0;
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #1a1a1a;
+        --terminal-green: #00ff41;
+        --warning-amber: #ff6b35;
+        --critical-red: #dc143c;
+        --accent-blue: #00d4ff;
+        --text-primary: #ffffff;
+        --text-secondary: #e0e0e0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
+
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      .font-orbitron {
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.18;
+      }
+
+      .analysis-card {
+        background: rgba(26, 26, 26, 0.8);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      .analysis-card:hover {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+      }
+
+      .methodology-card {
+        background: rgba(26, 26, 26, 0.9);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        transition: all 0.3s ease;
+      }
+
+      .methodology-card:hover {
+        border-color: var(--accent-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+      }
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--accent-blue),
+          var(--terminal-green)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        color: white;
+        margin-bottom: 16px;
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin: 32px 0;
+      }
+
+      .tech-card {
+        background: rgba(26, 26, 26, 0.8);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .tech-card:hover {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      }
+
+      .code-example {
+        background: #000;
+        color: var(--terminal-green);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid var(--terminal-green);
+        overflow-x: auto;
+        margin: 16px 0;
+      }
+
+      .nav-glow {
+        transition: all 0.3s ease;
+      }
+
+      .nav-glow:hover {
+        text-shadow: 0 0 10px var(--accent-blue);
+        color: var(--accent-blue);
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--terminal-green);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
+        50% {
+          opacity: 0.3;
         }
-        
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.18;
-        }
-        
-        .analysis-card {
-            background: rgba(26, 26, 26, 0.8);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .analysis-card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-        }
-        
-        .methodology-card {
-            background: rgba(26, 26, 26, 0.9);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            transition: all 0.3s ease;
-        }
-        
-        .methodology-card:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
-        }
-        
-        .step-number {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-blue), var(--terminal-green));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            color: white;
-            margin-bottom: 16px;
-        }
-        
+      }
+
+      .threat-level-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .level-safe {
+        background: var(--terminal-green);
+      }
+      .level-low {
+        background: var(--accent-blue);
+      }
+      .level-medium {
+        background: var(--warning-amber);
+      }
+      .level-high {
+        background: var(--critical-red);
+      }
+      .level-critical {
+        background: var(--critical-red);
+        box-shadow: 0 0 10px var(--critical-red);
+      }
+
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .feature-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+      }
+
+      .feature-list li:before {
+        content: "▶";
+        color: var(--accent-blue);
+        margin-right: 12px;
+        font-size: 12px;
+      }
+
+      .statistic-card {
+        text-align: center;
+        padding: 20px;
+        background: rgba(26, 26, 26, 0.6);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .statistic-card:hover {
+        border-color: var(--accent-blue);
+        transform: scale(1.05);
+      }
+
+      .statistic-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--accent-blue);
+        margin-bottom: 8px;
+      }
+
+      @media (max-width: 768px) {
         .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin: 32px 0;
+          grid-template-columns: 1fr;
         }
-        
-        .tech-card {
-            background: rgba(26, 26, 26, 0.8);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
+        .methodology-card {
+          padding: 16px;
         }
-        
-        .tech-card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-        }
-        
-        .code-example {
-            background: #000;
-            color: var(--terminal-green);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--terminal-green);
-            overflow-x: auto;
-            margin: 16px 0;
-        }
-        
-        .nav-glow {
-            transition: all 0.3s ease;
-        }
-        
-        .nav-glow:hover {
-            text-shadow: 0 0 10px var(--accent-blue);
-            color: var(--accent-blue);
-        }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--terminal-green);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        .threat-level-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        
-        .level-safe { background: var(--terminal-green); }
-        .level-low { background: var(--accent-blue); }
-        .level-medium { background: var(--warning-amber); }
-        .level-high { background: var(--critical-red); }
-        .level-critical { background: var(--critical-red); box-shadow: 0 0 10px var(--critical-red); }
-        
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .feature-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-        }
-        
-        .feature-list li:before {
-            content: "▶";
-            color: var(--accent-blue);
-            margin-right: 12px;
-            font-size: 12px;
-        }
-        
-        .statistic-card {
-            text-align: center;
-            padding: 20px;
-            background: rgba(26, 26, 26, 0.6);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        
-        .statistic-card:hover {
-            border-color: var(--accent-blue);
-            transform: scale(1.05);
-        }
-        
-        .statistic-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--accent-blue);
-            margin-bottom: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            .tech-grid {
-                grid-template-columns: 1fr;
-            }
-            .methodology-card {
-                padding: 16px;
-            }
-        }
+      }
+      .statistic-text {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--accent-blue);
+      }
+      @media (max-width: 768px) {
         .statistic-text {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: var(--accent-blue);
-}
-@media (max-width: 768px) {
-  .statistic-text {
-    font-size: 1.1rem;
-    line-height: 1.2;
-  }
+          font-size: 1.1rem;
+          line-height: 1.2;
+        }
 
-  .statistic-number {
-    font-size: 1.7rem;
-  }
-}
+        .statistic-number {
+          font-size: 1.7rem;
+        }
+      }
 
-body {
-    transition: opacity 0.25s ease, transform 0.25s ease;
-  }
+      body {
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
 
-  body.page-exit-left {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
+      body.page-exit-left {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
 
-  body.page-exit-right {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  
-::-webkit-scrollbar {
-  width: 10px;
-}
+      body.page-exit-right {
+        opacity: 0;
+        transform: translateX(20px);
+      }
 
-::-webkit-scrollbar-track {
-  background: rgba(10, 10, 10, 0.8);
-}
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    180deg,
-    #00d4ff,
-    #00ff88
-  );
-  border-radius: 999px;
-  border: 2px solid rgba(10, 10, 10, 0.9);
-}
+      ::-webkit-scrollbar-track {
+        background: rgba(10, 10, 10, 0.8);
+      }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    180deg,
-    #00ff88,
-    #00d4ff
-  );
-}
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #00d4ff, #00ff88);
+        border-radius: 999px;
+        border: 2px solid rgba(10, 10, 10, 0.9);
+      }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #00d4ff rgba(10, 10, 10, 0.8);
-}
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #00ff88, #00d4ff);
+      }
 
-
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #00d4ff rgba(10, 10, 10, 0.8);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <canvas id="matrixCanvas" class="matrix-bg"></canvas>
 
-    <nav class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <img
-                      src="logofav.png"
-                      alt="ZeroRisk Sentinel"
-                      class="w-8 h-8 rounded-lg object-cover"
-                    />
-                    <h1 class="font-orbitron text-xl font-bold text-white">ZeroRisk Sentinel</h1>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium">Scanner</a>
-                    <a href="results.html" class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium">Results</a>
-                    <a href="#" class="nav-glow text-white hover:text-blue-400 px-3 py-2 text-sm font-medium">About</a>
-                </div>
-                
-                <div class="flex items-center space-x-3">
-                    <div class="status-indicator"></div>
-                    <span class="text-sm text-gray-300">System Ready</span>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <main class="pt-20 pb-12">
-        <!-- Hero Section -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto text-center">
-                <h1 class="font-orbitron text-4xl md:text-6xl font-bold mb-6 text-white">
-                    Advanced <span class="text-blue-400">Cybersecurity</span> Methodology
-                </h1>
-                <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-  A clear and explainable security analysis approach built around static inspection,
-  heuristic signals, behavioral inference, and optional AI-assisted explanations.
-  Designed to highlight risk before execution, not after damage.
-                </p>
+    <nav
+      class="fixed top-0 w-full z-50 bg-black bg-opacity-80 backdrop-blur-md border-b border-gray-800"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3">
+            <img
+              src="logofav.png"
+              alt="ZeroRisk Sentinel"
+              class="w-8 h-8 rounded-lg object-cover"
+            />
+            <h1 class="font-orbitron text-xl font-bold text-white">
+              ZeroRisk Sentinel
+            </h1>
+          </div>
 
-                
-                <!-- Key Statistics -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-                    <div class="statistic-card">
-                        <div class="statistic-number">127</div>
-                        <div class="text-gray-400">Detection Patterns & Rules</div>
-                    </div>
-                    <div class="statistic-card">
-                        <div class="statistic-text">Rule-Based</div>
-                        <div class="text-gray-400">Detection Engine</div>
-                    </div>
-                    <div class="statistic-card">
-                        <div class="statistic-text">Explainable</div>
-                        <div class="text-gray-400">Threat Decisions</div>
-                    </div>
-                    <div class="statistic-card">
-                        <div class="statistic-text">Client-Side</div>
-                        <div class="text-gray-400">Offline Analysis</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Project Scope & Limitations -->
-<section class="py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="font-orbitron text-3xl font-bold text-center mb-8 text-white">
-      Project Scope & Limitations
-    </h2>
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="index.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >Scanner</a
+            >
+            <a
+              href="results.html"
+              class="nav-glow text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >Results</a
+            >
+            <a
+              href="#"
+              class="nav-glow text-white hover:text-blue-400 px-3 py-2 text-sm font-medium"
+              >About</a
+            >
+          </div>
 
-    <div class="analysis-card rounded-xl p-6">
-      <p class="text-gray-300 mb-4">
-  ZeroRisk Sentinel is built as a practical and educational cybersecurity project.
-  It demonstrates how static analysis and heuristic techniques can be used to
-  evaluate potential risks in files and URLs before they are executed or interacted with.
-       </p>
-
-
-      <ul class="feature-list text-gray-300">
-        <li>Performs static analysis only (no file or URL execution)</li>
-        <li>No live browsing, sandboxing, or operating system interaction</li>
-        <li>Detection results are heuristic-based, not definitive proof</li>
-        <li>Does not replace antivirus or enterprise security solutions</li>
-        <li>Designed for learning, demonstration, and academic evaluation</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-        <!-- URL Security Analysis Module -->
-<section class="py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
-      URL Security Analysis Module
-    </h2>
-
-    <div class="methodology-card">
-      <p class="text-gray-300 mb-6">
-        In addition to file inspection, ZeroRisk Sentinel includes a
-        heuristic-based URL security analysis module designed to identify
-        potentially suspicious or deceptive links commonly used in phishing
-        and social engineering attacks.
-      </p>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <h4 class="text-lg font-semibold mb-3 text-blue-400">
-            Analysis Techniques
-          </h4>
-          <ul class="feature-list text-gray-300">
-            <li>HTTPS and protocol validation</li>
-            <li>IP-based and shortened URL detection</li>
-            <li>Suspicious top-level domain identification</li>
-            <li>Phishing keyword and brand impersonation patterns</li>
-            <li>URL structure and query parameter inspection</li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-semibold mb-3 text-blue-400">
-            Key Characteristics
-          </h4>
-          <ul class="feature-list text-gray-300">
-            <li>No live website access or redirection following</li>
-            <li>No DNS or IP reputation lookups</li>
-            <li>Fully client-side and offline analysis</li>
-            <li>Risk scoring based on weighted heuristic rules</li>
-          </ul>
+          <div class="flex items-center space-x-3">
+            <div class="status-indicator"></div>
+            <span class="text-sm text-gray-300">System Ready</span>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </nav>
 
-        
-        <!-- Core Methodology -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Our Analysis Process</h2>
-                
-                <div class="space-y-8">
-                    <!-- Step 1: File Header Analysis -->
-                    <div class="methodology-card">
-                        <div class="flex items-start space-x-6">
-                            <div class="step-number">1</div>
-                            <div class="flex-1">
-                                <h3 class="text-2xl font-bold mb-4 text-white">File Header Analysis</h3>
-                                <p class="text-gray-300 mb-6">
-                                    Every file has a unique signature in its header bytes. We analyze these magic numbers to determine the true file type, 
-                                    regardless of what the extension claims. This reveals extension spoofing attempts where malicious files disguise themselves 
-                                    as harmless documents.
-                                </p>
-                                
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">How It Works</h4>
-                                        <ul class="feature-list text-gray-300">
-                                            <li>Reads first 32 bytes of file</li>
-                                            <li>Compares against signature database</li>
-                                            <li>Detects extension mismatches</li>
-                                            <li>Identifies spoofed file types</li>
-                                            <li>Flags Right-to-Left Override attacks</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Example Detection</h4>
-                                        <div class="code-example">
-                                            <div class="text-green-400">// Suspicious file: invoice.pdf.exe</div>
-                                            <div class="text-yellow-400">File Header: 4D 5A 90 00 03 00 00 00</div>
-                                            <div class="text-red-400">Detected: Windows Executable (.exe)</div>
-                                            <div class="text-blue-400">Extension: .pdf (MISMATCH DETECTED)</div>
-                                            <div class="text-red-400">[THREAT] Extension spoofing attack</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 2: Malware Signature Scanning -->
-                    <div class="methodology-card">
-                        <div class="flex items-start space-x-6">
-                            <div class="step-number">2</div>
-                            <div class="flex-1">
-                                <h3 class="text-2xl font-bold mb-4 text-white">Malware Signature Detection</h3>
-                                <p class="text-gray-300 mb-6">
-                                    Our system uses a curated set of known malicious and suspicious patterns
-                                    designed to demonstrate how common spyware and malware behaviors can be identified.
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+      <!-- Hero Section -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+          <h1
+            class="font-orbitron text-4xl md:text-6xl font-bold mb-6 text-white"
+          >
+            Advanced
+            <span class="text-blue-400">Cybersecurity</span> Methodology
+          </h1>
+          <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            A clear and explainable security analysis approach built around
+            static inspection, heuristic signals, behavioral inference, and
+            optional AI-assisted explanations. Designed to highlight risk before
+            execution, not after damage.
+          </p>
 
-                                    We scan file content for suspicious code patterns, malicious functions, and known attack vectors.
-                                </p>
-                                
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Detection Patterns</h4>
-                                        <ul class="feature-list text-gray-300">
-                                            <li>Code execution functions (eval, system, exec)</li>
-                                            <li>Shell command patterns</li>
-                                            <li>Registry modification attempts</li>
-                                            <li>Network communication signatures</li>
-                                            <li>File system manipulation</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Threat Categories</h4>
-                                        <div class="space-y-3">
-                                            <div class="flex items-center">
-                                                <span class="threat-level-indicator level-critical"></span>
-                                                <span class="text-gray-300">Trojans & Backdoors</span>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <span class="threat-level-indicator level-high"></span>
-                                                <span class="text-gray-300">Ransomware</span>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <span class="threat-level-indicator level-high"></span>
-                                                <span class="text-gray-300">Worms & Viruses</span>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <span class="threat-level-indicator level-medium"></span>
-                                                <span class="text-gray-300">Adware & PUPs</span>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <span class="threat-level-indicator level-low"></span>
-                                                <span class="text-gray-300">Suspicious Behavior</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 3: Keylogger Detection -->
-                    <div class="methodology-card">
-                        <div class="flex items-start space-x-6">
-                            <div class="step-number">3</div>
-                            <div class="flex-1">
-                                <h3 class="text-2xl font-bold mb-4 text-white">Keylogger & Spyware Detection</h3>
-                                <p class="text-gray-300 mb-6">
-                                    Specialized algorithms detect keystroke logging functionality, screen capture capabilities, and data exfiltration patterns. 
-The system detects keylogger-related behavior by identifying known
-keyboard monitoring patterns, API call references, and surveillance
-indicators embedded within file content, without executing the file.
-
-                                </p>
-                                
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Detection Methods</h4>
-                                        <ul class="feature-list text-gray-300">
-                                            <li>Windows API hook analysis</li>
-                                            <li>Keyboard state monitoring</li>
-                                            <li>Network data exfiltration</li>
-                                            <li>Stealth behavior patterns</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Behavioral Indicators</h4>
-                                        <div class="code-example">
-                                            <div class="text-red-400">// Suspicious API calls detected:</div>
-                                            <div class="text-yellow-400">SetWindowsHookEx(WH_KEYBOARD_LL)</div>
-                                            <div class="text-yellow-400">GetAsyncKeyState()</div>
-                                            <div class="text-yellow-400">GetForegroundWindow()</div>
-                                            <div class="text-red-400">[ALERT] Potential keylogger behavior</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 4: Permission & Access Analysis -->
-                    <div class="methodology-card">
-                        <div class="flex items-start space-x-6">
-                            <div class="step-number">4</div>
-                            <div class="flex-1">
-                                <h3 class="text-2xl font-bold mb-4 text-white">Permission & Risk Inference</h3>
-                                <p class="text-gray-300 mb-6">
-                                   The system infers potential risk based on behavior patterns associated
-                                with elevated privileges, system modification attempts, and persistence techniques.
-                                    This inference helps identify files that may require excessive control
-                                    if executed by a user.
-
-                                </p>
-                                
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Analysis Areas</h4>
-                                        <ul class="feature-list text-gray-300">
-                                            <li>Indicators of privilege abuse intent</li>
-                                            <li>Persistence and startup behavior patterns</li>
-                                            <li>System modification attempt indicators</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Risk Assessment</h4>
-                                        <div class="space-y-2 text-sm">
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-400">Minimal Permissions:</span>
-                                                <span class="text-green-400">Safe</span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-400">Standard Access:</span>
-                                                <span class="text-blue-400">Low Risk</span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-400">Elevated Privileges:</span>
-                                                <span class="text-yellow-400">Medium Risk</span>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-400">System-Level Access:</span>
-                                                <span class="text-red-400">High Risk</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-<!-- Step 4.5: APK Static Analysis -->
-<div class="methodology-card">
-  <div class="flex items-start space-x-6">
-    <div class="step-number">4.5</div>
-    <div class="flex-1">
-      <h3 class="text-2xl font-bold mb-4 text-white">APK Static Permission Analysis</h3>
-      <p class="text-gray-300 mb-6">
-        Android application packages (APKs) are analyzed using static inspection.
-        The system extracts metadata and declared permissions to infer potential
-        security risks without executing the application.
-      </p>
-
-      <ul class="feature-list text-gray-300">
-        <li>Extraction of package metadata and components</li>
-        <li>Detection of high-risk permission requests</li>
-        <li>Permission combination risk scoring</li>
-        <li>No runtime execution or emulation</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-                    
-                    <!-- Step 5: Behavioral Analysis -->
-                    <div class="methodology-card">
-                        <div class="flex items-start space-x-6">
-                            <div class="step-number">5</div>
-                            <div class="flex-1">
-                                <h3 class="text-2xl font-bold mb-4 text-white">Heuristic & Behavioral Analysis</h3>
-                                <p class="text-gray-300 mb-6">
-A heuristic-based behavioral analysis engine evaluates correlations
-between detected spyware indicators such as surveillance, persistence,
-stealth, and data exfiltration to determine overall threat confidence.
-                                </p>
-                                <p class="text-gray-300 mb-6">
-    An optional AI-assisted explanation layer converts technical analysis results
-    into clear, human-readable security explanations. This improves user understanding
-    without altering detection logic or risk scoring.
-                                </p>
-
-                                
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Analysis Techniques</h4>
-                                        <ul class="feature-list text-gray-300">
-                                            <li>Code structure analysis</li>
-                                            <li>Entropy calculation</li>
-                                            <li>String pattern recognition</li>
-                                            <li>Control flow analysis</li>
-                                            <li>Obfuscation detection</li>
-                                            <li>Packing identification</li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div>
-                                        <h4 class="text-lg font-semibold mb-3 text-blue-400">Heuristic Correlation Engine</h4>
-                                        <div class="space-y-2 text-sm text-gray-300">
-                                            <div>• Weighted behavioral indicator scoring</div>
-                                            <div>• Multi-signal threat correlation</div>
-                                            <div>• Confidence score normalization</div>
-                                            <div>• Explainable rule-based decisions</div>
-                                            <div>• AI-ready architecture for future integration</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <!-- Key Statistics -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+            <div class="statistic-card">
+              <div class="statistic-number">127</div>
+              <div class="text-gray-400">Detection Patterns & Rules</div>
             </div>
-        </section>
-<!-- System Workflow Overview -->
-<section class="py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
-      System Workflow Overview
-    </h2>
+            <div class="statistic-card">
+              <div class="statistic-text">Rule-Based</div>
+              <div class="text-gray-400">Detection Engine</div>
+            </div>
+            <div class="statistic-card">
+              <div class="statistic-text">Explainable</div>
+              <div class="text-gray-400">Threat Decisions</div>
+            </div>
+            <div class="statistic-card">
+              <div class="statistic-text">Client-Side</div>
+              <div class="text-gray-400">Offline Analysis</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Project Scope & Limitations -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-8 text-white"
+          >
+            Project Scope & Limitations
+          </h2>
 
-    <div class="analysis-card rounded-xl p-6">
-      <ol class="list-decimal list-inside text-gray-300 space-y-3">
-        <li>User submits a file or URL for inspection</li>
-        <li>Static data is extracted without execution</li>
-        <li>Heuristic rules and pattern checks are applied</li>
-        <li>Risk scores and threat levels are calculated</li>
-        <li>Findings are correlated into a behavior profile</li>
-        <li>Results are presented with visual indicators and explanations</li>
-      </ol>
-    </div>
-  </div>
-</section>
-<section class="py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
-      Architecture Design Philosophy
-    </h2>
+          <div class="analysis-card rounded-xl p-6">
+            <p class="text-gray-300 mb-4">
+              ZeroRisk Sentinel is built as a practical and educational
+              cybersecurity project. It demonstrates how static analysis and
+              heuristic techniques can be used to evaluate potential risks in
+              files and URLs before they are executed or interacted with.
+            </p>
 
-    <div class="analysis-card rounded-xl p-6">
-      <p class="text-gray-300 mb-4">
-        ZeroRisk Sentinel is intentionally designed as a hybrid-ready system.
-        The current implementation relies on fully client-side analysis to ensure
-        transparency, offline capability, and zero data exposure.
-      </p>
+            <ul class="feature-list text-gray-300">
+              <li>Performs static analysis only (no file or URL execution)</li>
+              <li>
+                No live browsing, sandboxing, or operating system interaction
+              </li>
+              <li>
+                Detection results are heuristic-based, not definitive proof
+              </li>
+              <li>
+                Does not replace antivirus or enterprise security solutions
+              </li>
+              <li>
+                Designed for learning, demonstration, and academic evaluation
+              </li>
+              <li>
+                AI explanations are interpretive and optional, not
+                decision-making components
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
-      <p class="text-gray-300 mb-4">
-        At the same time, the internal structure is built to support optional
-        backend-assisted analysis in the future, without breaking or replacing
-        existing logic.
-      </p>
+      <!-- URL Security Analysis Module -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            URL Security Analysis Module
+          </h2>
 
-      <ul class="feature-list text-gray-300">
-        <li>Client-side analysis remains the primary and fail-safe layer</li>
-        <li>Backend services enhance analysis depth without replacing client-side logic</li>
-        <li>AI explanations can be optional and non-blocking</li>
-        <li>Results can be correlated locally or server-side</li>
-      </ul>
-    </div>
-  </div>
-</section>
+          <div class="methodology-card">
+            <p class="text-gray-300 mb-6">
+              In addition to file inspection, ZeroRisk Sentinel includes a
+              heuristic-based URL security analysis module designed to identify
+              potentially suspicious or deceptive links commonly used in
+              phishing and social engineering attacks.
+            </p>
+            <p class="text-gray-400 text-sm mt-3">
+              The module applies weighted heuristic rules such as protocol
+              checks, domain patterns, keyword detection, and structural
+              anomalies to assign a relative risk score.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                  Analysis Techniques
+                </h4>
+                <ul class="feature-list text-gray-300">
+                  <li>HTTPS and protocol validation</li>
+                  <li>IP-based and shortened URL detection</li>
+                  <li>Suspicious top-level domain identification</li>
+                  <li>Phishing keyword and brand impersonation patterns</li>
+                  <li>URL structure and query parameter inspection</li>
+                </ul>
+              </div>
 
-        
-        <!-- Technology Stack -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Detection Technologies</h2>
-                
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <h3 class="text-xl font-bold mb-4 text-blue-400">Signature-Based Detection</h3>
-                        <p class="text-gray-300 mb-4">
-                            Traditional but effective method using known malware signatures and patterns. Fast and accurate for known threats.
-                        </p>
-                        <ul class="feature-list text-gray-300">
-                            <li>Curated signature and pattern set for demonstration</li>
-                            <li>Real-time pattern matching</li>
-                            <li>Rule-based indicators with explainable outcomes</li>
-                            <li>Client-side scanning without server dependency</li>
-                        </ul>
+              <div>
+                <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                  Key Characteristics
+                </h4>
+                <ul class="feature-list text-gray-300">
+                  <li>No live website access or redirection following</li>
+                  <li>No DNS or IP reputation lookups</li>
+                  <li>Fully client-side and offline analysis</li>
+                  <li>Risk scoring based on weighted heuristic rules</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Core Methodology -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Our Analysis Process
+          </h2>
+
+          <div class="space-y-8">
+            <!-- Step 1: File Header Analysis -->
+            <div class="methodology-card">
+              <div class="flex items-start space-x-6">
+                <div class="step-number">1</div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-4 text-white">
+                    File Header Analysis
+                  </h3>
+                  <p class="text-gray-300 mb-6">
+                    Every file has a unique signature in its header bytes. We
+                    analyze these magic numbers to determine the true file type,
+                    regardless of what the extension claims. This reveals
+                    extension spoofing attempts where malicious files disguise
+                    themselves as harmless documents.
+                  </p>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        How It Works
+                      </h4>
+                      <ul class="feature-list text-gray-300">
+                        <li>Reads first 32 bytes of file</li>
+                        <li>Compares against signature database</li>
+                        <li>Detects extension mismatches</li>
+                        <li>Identifies spoofed file types</li>
+                        <li>Flags Right-to-Left Override attacks</li>
+                      </ul>
                     </div>
-                    
-                    <div class="tech-card">
-                        <h3 class="text-xl font-bold mb-4 text-blue-400">Heuristic Analysis</h3>
-                        <p class="text-gray-300 mb-4">
-                            Advanced algorithms that detect suspicious behavior patterns and code structures, even in unknown malware.
-                        </p>
-                        <ul class="feature-list text-gray-300">
-                            <li>Behavioral pattern recognition</li>
-                            <li>Code structure analysis</li>
-                            <li>Unknown threat behavior inference</li>
-                            <li>Obfuscation and variation awareness</li>
-                        </ul>
+
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Example Detection
+                      </h4>
+                      <div class="code-example">
+                        <div class="text-green-400">
+                          // Suspicious file: invoice.pdf.exe
+                        </div>
+                        <div class="text-yellow-400">
+                          File Header: 4D 5A 90 00 03 00 00 00
+                        </div>
+                        <div class="text-red-400">
+                          Detected: Windows Executable (.exe)
+                        </div>
+                        <div class="text-blue-400">
+                          Extension: .pdf (MISMATCH DETECTED)
+                        </div>
+                        <div class="text-red-400">
+                          [THREAT] Extension spoofing attack
+                        </div>
+                      </div>
                     </div>
-                    <div class="tech-card">
-                        <h3 class="text-xl font-bold mb-4 text-blue-400">
-                            Behavioral Inference Engine
-                        </h3>
-                        <p class="text-gray-300 mb-4">
-        A rule-driven analysis layer that correlates multiple spyware
-        behaviors to infer threat severity without relying on execution
-        or operating system access.
-                        </p>
-                        <ul class="feature-list text-gray-300">
-                            <li>Surveillance behavior inference</li>
-                            <li>Persistence technique detection</li>
-                            <li>Stealth indicator correlation</li>
-                            <li>Data exfiltration pattern recognition</li>
-                        </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Malware Signature Scanning -->
+            <div class="methodology-card">
+              <div class="flex items-start space-x-6">
+                <div class="step-number">2</div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-4 text-white">
+                    Malware Signature Detection
+                  </h3>
+                  <p class="text-gray-300 mb-6">
+                    Our system uses a curated set of known malicious and
+                    suspicious patterns designed to demonstrate how common
+                    spyware and malware behaviors can be identified. We scan
+                    file content for suspicious code patterns, malicious
+                    functions, and known attack vectors.
+                  </p>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Detection Patterns
+                      </h4>
+                      <ul class="feature-list text-gray-300">
+                        <li>Code execution functions (eval, system, exec)</li>
+                        <li>Shell command patterns</li>
+                        <li>Registry modification attempts</li>
+                        <li>Network communication signatures</li>
+                        <li>File system manipulation</li>
+                      </ul>
                     </div>
 
-                    
-                   <!-- <div class="tech-card">
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Threat Categories
+                      </h4>
+                      <div class="space-y-3">
+                        <div class="flex items-center">
+                          <span
+                            class="threat-level-indicator level-critical"
+                          ></span>
+                          <span class="text-gray-300">Trojans & Backdoors</span>
+                        </div>
+                        <div class="flex items-center">
+                          <span
+                            class="threat-level-indicator level-high"
+                          ></span>
+                          <span class="text-gray-300">Ransomware</span>
+                        </div>
+                        <div class="flex items-center">
+                          <span
+                            class="threat-level-indicator level-high"
+                          ></span>
+                          <span class="text-gray-300">Worms & Viruses</span>
+                        </div>
+                        <div class="flex items-center">
+                          <span
+                            class="threat-level-indicator level-medium"
+                          ></span>
+                          <span class="text-gray-300">Adware & PUPs</span>
+                        </div>
+                        <div class="flex items-center">
+                          <span class="threat-level-indicator level-low"></span>
+                          <span class="text-gray-300">Suspicious Behavior</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Keylogger Detection -->
+            <div class="methodology-card">
+              <div class="flex items-start space-x-6">
+                <div class="step-number">3</div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-4 text-white">
+                    Keylogger & Spyware Detection
+                  </h3>
+                  <p class="text-gray-300 mb-6">
+                    Specialized algorithms detect keystroke logging
+                    functionality, screen capture capabilities, and data
+                    exfiltration patterns. The system detects keylogger-related
+                    behavior by identifying known keyboard monitoring patterns,
+                    API call references, and surveillance indicators embedded
+                    within file content, without executing the file.
+                  </p>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Detection Methods
+                      </h4>
+                      <ul class="feature-list text-gray-300">
+                        <li>Windows API hook analysis</li>
+                        <li>Keyboard state monitoring</li>
+                        <li>Network data exfiltration</li>
+                        <li>Stealth behavior patterns</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Behavioral Indicators
+                      </h4>
+                      <div class="code-example">
+                        <div class="text-red-400">
+                          // Suspicious API calls detected:
+                        </div>
+                        <div class="text-yellow-400">
+                          SetWindowsHookEx(WH_KEYBOARD_LL)
+                        </div>
+                        <div class="text-yellow-400">GetAsyncKeyState()</div>
+                        <div class="text-yellow-400">GetForegroundWindow()</div>
+                        <div class="text-red-400">
+                          [ALERT] Potential keylogger behavior
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Permission & Access Analysis -->
+            <div class="methodology-card">
+              <div class="flex items-start space-x-6">
+                <div class="step-number">4</div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-4 text-white">
+                    Permission & Risk Inference
+                  </h3>
+                  <p class="text-gray-300 mb-6">
+                    The system infers potential risk based on behavior patterns
+                    associated with elevated privileges, system modification
+                    attempts, and persistence techniques. This inference helps
+                    identify files that may require excessive control if
+                    executed by a user.
+                  </p>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Analysis Areas
+                      </h4>
+                      <ul class="feature-list text-gray-300">
+                        <li>Indicators of privilege abuse intent</li>
+                        <li>Persistence and startup behavior patterns</li>
+                        <li>System modification attempt indicators</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Risk Assessment
+                      </h4>
+                      <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                          <span class="text-gray-400"
+                            >Minimal Permissions:</span
+                          >
+                          <span class="text-green-400">Safe</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-gray-400">Standard Access:</span>
+                          <span class="text-blue-400">Low Risk</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-gray-400"
+                            >Elevated Privileges:</span
+                          >
+                          <span class="text-yellow-400">Medium Risk</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-gray-400"
+                            >System-Level Access:</span
+                          >
+                          <span class="text-red-400">High Risk</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 4.5 APK Static Analysis -->
+            <div class="methodology-card">
+              <div class="flex items-start space-x-6">
+                <div class="step-number">4.5</div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-4 text-white">
+                    APK Static Permission Analysis
+                  </h3>
+                  <p class="text-gray-300 mb-6">
+                    Android application packages (APKs) are analyzed using
+                    static inspection. The system extracts metadata and declared
+                    permissions to infer potential security risks without
+                    executing the application.
+                  </p>
+
+                  <ul class="feature-list text-gray-300">
+                    <li>Extraction of package metadata and components</li>
+                    <li>Detection of high-risk permission requests</li>
+                    <li>Permission combination risk scoring</li>
+                    <li>No runtime execution or emulation</li>
+                  </ul>
+                  <p class="text-gray-400 text-sm mt-4">
+                    APK analysis is performed via static permission inspection
+                    using a Python backend and does not involve execution,
+                    emulation, or dynamic behavior monitoring.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 5: Behavioral Analysis -->
+            <div class="methodology-card">
+              <div class="flex items-start space-x-6">
+                <div class="step-number">5</div>
+                <div class="flex-1">
+                  <h3 class="text-2xl font-bold mb-4 text-white">
+                    Heuristic & Behavioral Analysis
+                  </h3>
+                  <p class="text-gray-300 mb-6">
+                    A heuristic-based behavioral analysis engine evaluates
+                    correlations between detected spyware indicators such as
+                    surveillance, persistence, stealth, and data exfiltration to
+                    determine overall threat confidence.
+                  </p>
+                  <p class="text-gray-300 mb-6">
+                    An optional AI-assisted explanation layer converts finalized
+                    heuristic results into human-readable security explanations.
+                    The AI component does not influence detection logic,
+                    scoring, or verdicts, and exists solely to improve
+                    interpretability for users and evaluators.
+                  </p>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Analysis Techniques
+                      </h4>
+                      <ul class="feature-list text-gray-300">
+                        <li>Code structure analysis</li>
+                        <li>Entropy calculation</li>
+                        <li>String pattern recognition</li>
+                        <li>Control flow analysis</li>
+                        <li>Obfuscation detection</li>
+                        <li>Packing identification</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 class="text-lg font-semibold mb-3 text-blue-400">
+                        Heuristic Correlation Engine
+                      </h4>
+                      <div class="space-y-2 text-sm text-gray-300">
+                        <div>• Weighted behavioral indicator scoring</div>
+                        <div>• Multi-signal threat correlation</div>
+                        <div>• Confidence score normalization</div>
+                        <div>• Explainable rule-based decisions</div>
+                        <div>
+                          • AI-ready architecture for future integration
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- System Workflow Overview -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            System Workflow Overview
+          </h2>
+
+          <div class="analysis-card rounded-xl p-6">
+            <ol class="list-decimal list-inside text-gray-300 space-y-3">
+              <li>User submits a file or URL for inspection</li>
+              <li>Static data is extracted without execution</li>
+              <li>Heuristic rules and pattern checks are applied</li>
+              <li>Risk scores and threat levels are calculated</li>
+              <li>Findings are correlated into a behavior profile</li>
+              <li>
+                Results are presented with visual indicators and explanations
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Architecture Design Philosophy
+          </h2>
+
+          <div class="analysis-card rounded-xl p-6">
+            <p class="text-gray-300 mb-4">
+              ZeroRisk Sentinel is intentionally designed as a hybrid-ready
+              system. The current implementation relies on fully client-side
+              analysis to ensure transparency, offline capability, and zero data
+              exposure.
+            </p>
+
+            <p class="text-gray-300 mb-4">
+              At the same time, the internal structure is built to support
+              optional backend-assisted analysis in the future, without breaking
+              or replacing existing logic.
+            </p>
+
+            <ul class="feature-list text-gray-300">
+              <li>
+                Client-side analysis remains the primary and fail-safe layer
+              </li>
+              <li>
+                Backend services enhance analysis depth without replacing
+                client-side logic
+              </li>
+              <li>AI explanations can be optional and non-blocking</li>
+              <li>Results can be correlated locally or server-side</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Technology Stack -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Detection Technologies
+          </h2>
+
+          <div class="tech-grid">
+            <div class="tech-card">
+              <h3 class="text-xl font-bold mb-4 text-blue-400">
+                Signature-Based Detection
+              </h3>
+              <p class="text-gray-300 mb-4">
+                Traditional but effective method using known malware signatures
+                and patterns. Fast and accurate for known threats.
+              </p>
+              <ul class="feature-list text-gray-300">
+                <li>Curated signature and pattern set for demonstration</li>
+                <li>Real-time pattern matching</li>
+                <li>Rule-based indicators with explainable outcomes</li>
+                <li>Client-side scanning without server dependency</li>
+              </ul>
+            </div>
+
+            <div class="tech-card">
+              <h3 class="text-xl font-bold mb-4 text-blue-400">
+                Heuristic Analysis
+              </h3>
+              <p class="text-gray-300 mb-4">
+                Advanced algorithms that detect suspicious behavior patterns and
+                code structures, even in unknown malware.
+              </p>
+              <ul class="feature-list text-gray-300">
+                <li>Behavioral pattern recognition</li>
+                <li>Code structure analysis</li>
+                <li>Unknown threat behavior inference</li>
+                <li>Obfuscation and variation awareness</li>
+              </ul>
+            </div>
+            <div class="tech-card">
+              <h3 class="text-xl font-bold mb-4 text-blue-400">
+                Behavioral Inference Engine
+              </h3>
+              <p class="text-gray-300 mb-4">
+                A rule-driven analysis layer that correlates multiple spyware
+                behaviors to infer threat severity without relying on execution
+                or operating system access.
+              </p>
+              <ul class="feature-list text-gray-300">
+                <li>Surveillance behavior inference</li>
+                <li>Persistence technique detection</li>
+                <li>Stealth indicator correlation</li>
+                <li>Data exfiltration pattern recognition</li>
+              </ul>
+            </div>
+
+            <!-- <div class="tech-card">
                         <h3 class="text-xl font-bold mb-4 text-blue-400">Machine Learning</h3>
                         <p class="text-gray-300 mb-4">
                             AI-powered detection using trained models to identify malicious characteristics and anomalies.
@@ -774,21 +928,24 @@ stealth, and data exfiltration to determine overall threat confidence.
                             <li>Reduced false positives</li>
                         </ul>
                     </div> -->
-                    
-                    <div class="tech-card">
-                        <h3 class="text-xl font-bold mb-4 text-blue-400">Static Analysis</h3>
-                        <p class="text-gray-300 mb-4">
-                            Deep inspection of file structure, headers, and content without executing the file.
-                        </p>
-                        <ul class="feature-list text-gray-300">
-                            <li>File header verification</li>
-                            <li>Metadata extraction</li>
-                            <li>String analysis</li>
-                            <li>Import/export table inspection</li>
-                        </ul>
-                    </div>
-                    
-                    <!--  <div class="tech-card">
+
+            <div class="tech-card">
+              <h3 class="text-xl font-bold mb-4 text-blue-400">
+                Static Analysis
+              </h3>
+              <p class="text-gray-300 mb-4">
+                Deep inspection of file structure, headers, and content without
+                executing the file.
+              </p>
+              <ul class="feature-list text-gray-300">
+                <li>File header verification</li>
+                <li>Metadata extraction</li>
+                <li>String analysis</li>
+                <li>Import/export table inspection</li>
+              </ul>
+            </div>
+
+            <!--  <div class="tech-card">
                         <h3 class="text-xl font-bold mb-4 text-blue-400">Dynamic Analysis</h3>
                         <p class="text-gray-300 mb-4">
                             Behavioral monitoring of file execution in controlled sandbox environments.
@@ -800,8 +957,8 @@ stealth, and data exfiltration to determine overall threat confidence.
                             <li>Registry modification tracking</li>
                         </ul>
                     </div> -->
-                    
-                    <!--  <div class="tech-card">
+
+            <!--  <div class="tech-card">
                         <h3 class="text-xl font-bold mb-4 text-blue-400">Memory Analysis</h3>
                         <p class="text-gray-300 mb-4">
                             Advanced memory inspection to detect injected code, hidden processes, and runtime modifications.
@@ -813,259 +970,307 @@ stealth, and data exfiltration to determine overall threat confidence.
                             <li>Process hollowing detection</li>
                         </ul>
                     </div> -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Threat Intelligence -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Threat Intelligence (Conceptual Demonstration)
+          </h2>
+
+          <div class="analysis-card rounded-xl p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <h3 class="text-2xl font-bold mb-6 text-white">
+                  Conceptual Threat Intelligence Model
+                </h3>
+                <p class="text-gray-300 mb-6">
+                  The current version of ZeroRisk Sentinel uses a locally
+                  maintained signature and behavior pattern dataset to
+                  demonstrate how threat intelligence concepts can be applied in
+                  spyware detection systems. The system architecture is designed
+                  to support future integration of external threat intelligence
+                  feeds and AI-powered analysis services.
+                </p>
+
+                <ul class="feature-list text-gray-300">
+                  <li>Locally maintained signature and behavior dataset</li>
+                  <li>Spyware behavior categorization</li>
+                  <li>Threat severity mapping</li>
+                  <li>Explainable threat reasoning</li>
+                  <li>AI-ready integration architecture</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="text-2xl font-bold mb-6 text-white">
+                  Planned Intelligence Sources
+                </h3>
+                <p class="text-gray-400 text-sm mb-4">
+                  The following sources represent future expansion ideas and are
+                  not active in the current implementation.
+                </p>
+
+                <div class="space-y-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                    <span class="text-gray-300"
+                      >Public malware research datasets</span
+                    >
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                    <span class="text-gray-300"
+                      >Open-source threat intelligence feeds</span
+                    >
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-purple-400 rounded-full"></div>
+                    <span class="text-gray-300"
+                      >AI-assisted threat explanation services</span
+                    >
+                  </div>
                 </div>
-            </div>
-        </section>
-        
-        <!-- Threat Intelligence -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Threat Intelligence (Conceptual & AI-Ready)</h2>
-                
-                <div class="analysis-card rounded-xl p-8">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="text-2xl font-bold mb-6 text-white">Conceptual Threat Intelligence Model</h3>
-                            <p class="text-gray-300 mb-6">
-    The current version of ZeroRisk Sentinel uses a locally maintained
-    signature and behavior pattern dataset to demonstrate how threat
-    intelligence concepts can be applied in spyware detection systems.
-    The system architecture is designed to support future integration
-    of external threat intelligence feeds and AI-powered analysis services.
-                            </p>
-                            
-                            <ul class="feature-list text-gray-300">
-                                <li>Locally maintained signature and behavior dataset</li>
-                                <li>Spyware behavior categorization</li>
-                                <li>Threat severity mapping</li>
-                                <li>Explainable threat reasoning</li>
-                                <li>AI-ready integration architecture</li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h3 class="text-2xl font-bold mb-6 text-white">Planned Intelligence Sources</h3>
-                            <p class="text-gray-400 text-sm mb-4">
-  The following sources represent future expansion ideas and are not active in the current implementation.
-                            </p>
 
-                            <div class="space-y-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
-                                    <span class="text-gray-300">Public malware research datasets</span>
-                                </div>
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
-                                    <span class="text-gray-300">Open-source threat intelligence feeds</span>
-                                </div>
-                                    <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-purple-400 rounded-full"></div>
-                                    <span class="text-gray-300">AI-assisted threat explanation services</span>
-                                </div>
-                            </div>
-
-                            
-                            <div class="mt-6 p-4 bg-gray-800 rounded-lg">
-                                <h4 class="font-semibold mb-2 text-blue-400">Update Frequency</h4>
-                                <p class="text-gray-300 text-sm">
-                                    Threat patterns and AI explanation logic are currently maintained
-                                    as part of the application for academic evaluation and controlled
-                                    testing purposes.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mt-6 p-4 bg-gray-800 rounded-lg">
+                  <h4 class="font-semibold mb-2 text-blue-400">
+                    Update Frequency
+                  </h4>
+                  <p class="text-gray-300 text-sm">
+                    Threat patterns and AI explanation logic are currently
+                    maintained as part of the application for academic
+                    evaluation and controlled testing purposes.
+                  </p>
                 </div>
+              </div>
             </div>
-        </section>
-<section class="py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
-      Future Scope & Planned Enhancements
-    </h2>
+          </div>
+        </div>
+      </section>
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Future Scope & Planned Enhancements
+          </h2>
 
-    <div class="analysis-card rounded-xl p-6">
-      <p class="text-gray-300 mb-4">
-        While the current version of ZeroRisk Sentinel focuses on static,
-        explainable, and offline analysis, the project is intentionally structured
-        to grow without disrupting its core logic.
-      </p>
+          <div class="analysis-card rounded-xl p-6">
+            <p class="text-gray-300 mb-4">
+              While the current version of ZeroRisk Sentinel focuses on static,
+              explainable, and offline analysis, the project is intentionally
+              structured to grow without disrupting its core logic.
+            </p>
 
-      <ul class="feature-list text-gray-300">
-        <li>Expanded backend-based analysis and correlation for improved accuracy</li>
-        <li>Extended APK analysis including deeper permission and behavior mapping</li>
-        <li>Support for additional file formats and document types</li>
-        <li>Sandbox-assisted dynamic analysis as a separate analysis layer</li>
-        <li>AI-assisted classification and summarization (opt-in only)</li>
-        <li>Exportable, shareable, and verifiable analysis reports</li>
-      </ul>
+            <ul class="feature-list text-gray-300">
+              <li>
+                Expanded backend-based analysis and correlation for improved
+                accuracy
+              </li>
+              <li>
+                Extended APK analysis including deeper permission and behavior
+                mapping
+              </li>
+              <li>Support for additional file formats and document types</li>
+              <li>
+                Sandbox-assisted dynamic analysis as a separate analysis layer
+              </li>
+              <li>
+                AI-assisted classification and summarization (opt-in only)
+              </li>
+              <li>Exportable, shareable, and verifiable analysis reports</li>
+            </ul>
 
-      <p class="text-gray-400 text-sm mt-4">
-        All future additions are planned as enhancements, not replacements,
-        ensuring the system remains transparent and user-controlled.
-      </p>
-    </div>
-  </div>
-</section>
+            <p class="text-gray-400 text-sm mt-4">
+              All future additions are planned as enhancements, not
+              replacements, ensuring the system remains transparent and
+              user-controlled.
+            </p>
+          </div>
+        </div>
+      </section>
 
-        <!-- Best Practices -->
-        <section class="py-12 px-4">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">Security Best Practices</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="analysis-card rounded-xl p-6">
-                        <h3 class="text-lg font-bold mb-4 text-blue-400">File Handling</h3>
-                        <ul class="feature-list text-gray-300 text-sm">
-                            <li>Always verify file sources</li>
-                            <li>Scan before opening</li>
-                            <li>Don't trust extensions alone</li>
-                            <li>Use secure file sharing</li>
-                            <li>Keep backups updated</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="analysis-card rounded-xl p-6">
-                        <h3 class="text-lg font-bold mb-4 text-blue-400">Email Security</h3>
-                        <ul class="feature-list text-gray-300 text-sm">
-                            <li>Verify sender identity</li>
-                            <li>Don't open suspicious attachments</li>
-                            <li>Check for spoofed domains</li>
-                            <li>Use email authentication</li>
-                            <li>Report phishing attempts</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="analysis-card rounded-xl p-6">
-                        <h3 class="text-lg font-bold mb-4 text-blue-400">System Protection</h3>
-                        <ul class="feature-list text-gray-300 text-sm">
-                            <li>Keep software updated</li>
-                            <li>Use reputable antivirus</li>
-                            <li>Enable firewall protection</li>
-                            <li>Regular security scans</li>
-                            <li>Monitor system behavior</li>
-                        </ul>
-                    </div>
-                </div>
+      <!-- Best Practices -->
+      <section class="py-12 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+          >
+            Security Best Practices
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4 text-blue-400">
+                File Handling
+              </h3>
+              <ul class="feature-list text-gray-300 text-sm">
+                <li>Always verify file sources</li>
+                <li>Scan before opening</li>
+                <li>Don't trust extensions alone</li>
+                <li>Use secure file sharing</li>
+                <li>Keep backups updated</li>
+              </ul>
             </div>
-        </section>
+
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4 text-blue-400">
+                Email Security
+              </h3>
+              <ul class="feature-list text-gray-300 text-sm">
+                <li>Verify sender identity</li>
+                <li>Don't open suspicious attachments</li>
+                <li>Check for spoofed domains</li>
+                <li>Use email authentication</li>
+                <li>Report phishing attempts</li>
+              </ul>
+            </div>
+
+            <div class="analysis-card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4 text-blue-400">
+                System Protection
+              </h3>
+              <ul class="feature-list text-gray-300 text-sm">
+                <li>Keep software updated</li>
+                <li>Use reputable antivirus</li>
+                <li>Enable firewall protection</li>
+                <li>Regular security scans</li>
+                <li>Monitor system behavior</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
     <!-- Security & Privacy Considerations -->
-<section class="py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="font-orbitron text-3xl font-bold text-center mb-12 text-white">
-      Security & Privacy Considerations
-    </h2>
+    <section class="py-12 px-4">
+      <div class="max-w-6xl mx-auto">
+        <h2
+          class="font-orbitron text-3xl font-bold text-center mb-12 text-white"
+        >
+          Security & Privacy Considerations
+        </h2>
 
-    <div class="analysis-card rounded-xl p-6">
-      <ul class="feature-list text-gray-300">
-        <li>All analysis is performed locally in the browser</li>
-        <li>No files or URLs are uploaded to external servers</li>
-        <li>No persistent storage of scanned data</li>
-        <li>Session-based data handling for temporary results</li>
-        <li>No tracking, telemetry, or background data collection</li>
-      </ul>
-    </div>
-  </div>
-</section>
+        <div class="analysis-card rounded-xl p-6">
+          <ul class="feature-list text-gray-300">
+            <li>All analysis is performed locally in the browser</li>
+            <li>No files or URLs are uploaded to external servers</li>
+            <li>No persistent storage of scanned data</li>
+            <li>Session-based data handling for temporary results</li>
+            <li>No tracking, telemetry, or background data collection</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 border-t border-gray-800 py-8">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <p class="text-gray-400">&copy; 2025 ZeroRisk Sentinel. Advanced cybersecurity for the digital age.</p>
-        </div>
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <p class="text-gray-400">
+          &copy; 2025 ZeroRisk Sentinel. Advanced cybersecurity for the digital
+          age.
+        </p>
+      </div>
     </footer>
-    
+
     <script>
-        // Initialize matrix background
-        function startMatrixBackground() {
-            const canvas = document.getElementById('matrixCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            const charArray = chars.split('');
-            
-            const fontSize = 14;
-            const columns = canvas.width / fontSize;
-            const drops = Array(Math.floor(columns)).fill(1);
-            
-            function drawMatrix() {
-                ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#00ff41';
-                ctx.font = `${fontSize}px JetBrains Mono`;
-                
-                for (let i = 0; i < drops.length; i++) {
-                    const text = charArray[Math.floor(Math.random() * charArray.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
+      // Initialize matrix background
+      function startMatrixBackground() {
+        const canvas = document.getElementById("matrixCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars =
+          "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+        const charArray = chars.split("");
+
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+          ctx.fillStyle = "rgba(10, 10, 10, 0.04)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "#00ff41";
+          ctx.font = `${fontSize}px JetBrains Mono`;
+
+          for (let i = 0; i < drops.length; i++) {
+            const text =
+              charArray[Math.floor(Math.random() * charArray.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+              drops[i] = 0;
             }
-            
-            setInterval(drawMatrix, 35);
-            
-            window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            });
+            drops[i]++;
+          }
         }
-        
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            startMatrixBackground();
-            
-            // Animate cards on scroll
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        anime({
-                            targets: entry.target,
-                            opacity: [0, 1],
-                            translateY: [50, 0],
-                            duration: 800,
-                            easing: 'easeOutQuart'
-                        });
-                    }
-                });
-            }, observerOptions);
-            
-            document.querySelectorAll('.methodology-card, .analysis-card, .tech-card').forEach(card => {
-                card.style.opacity = '0';
-                observer.observe(card);
-            });
-            
-            // Animate statistics
-            setTimeout(() => {
-                anime({
-                    targets: '.statistic-number',
-                    innerHTML: [0, (el) => el.innerHTML],
-                    duration: 2000,
-                    easing: 'easeOutQuart',
-                    round: 1
-                });
-            }, 1000);
+
+        setInterval(drawMatrix, 35);
+
+        window.addEventListener("resize", () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
         });
+      }
+
+      // Initialize everything when DOM is loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        startMatrixBackground();
+
+        // Animate cards on scroll
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: "0px 0px -50px 0px",
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              anime({
+                targets: entry.target,
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 800,
+                easing: "easeOutQuart",
+              });
+            }
+          });
+        }, observerOptions);
+
+        document
+          .querySelectorAll(".methodology-card, .analysis-card, .tech-card")
+          .forEach((card) => {
+            card.style.opacity = "0";
+            observer.observe(card);
+          });
+
+        // Animate statistics
+        setTimeout(() => {
+          anime({
+            targets: ".statistic-number",
+            innerHTML: [0, (el) => el.innerHTML],
+            duration: 2000,
+            easing: "easeOutQuart",
+            round: 1,
+          });
+        }, 1000);
+      });
     </script>
     <script src="main.js"></script>
-    <div id="swipeHint"
-         class="fixed bottom-4 left-1/2 -translate-x-1/2
-                text-xs text-gray-400 opacity-70
-                md:hidden select-none
-                pointer-events-none">
+    <div
+      id="swipeHint"
+      class="fixed bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400 opacity-70 md:hidden select-none pointer-events-none"
+    >
       ← Swipe to change pages →
     </div>
-</body>
+  </body>
 </html>

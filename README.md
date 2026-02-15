@@ -6,12 +6,17 @@
 <!-- Live Demo Badge -->
 [![Live Demo](https://img.shields.io/badge/🔗_LIVE_DEMO-zerorisk--sentinel.vercel.app-00d4ff?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0a0a0a)](https://zerorisk-sentinel.vercel.app/)
 
+[![Video Demo](https://img.shields.io/badge/🎥_VIDEO_DEMO-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=0a0a0a)](https://youtu.be/gs6Ucu4xlIU)
+
 <!-- Tech Stack Badges -->
 <p align="center">
   <img src="https://img.shields.io/badge/HTML5-0a0a0a?style=for-the-badge&logo=html5&logoColor=E34F26&labelColor=0a0a0a">
   <img src="https://img.shields.io/badge/JavaScript-0a0a0a?style=for-the-badge&logo=javascript&logoColor=F7DF1E&labelColor=0a0a0a">
   <img src="https://img.shields.io/badge/Tailwind_CSS-0a0a0a?style=for-the-badge&logo=tailwindcss&logoColor=06B6D4&labelColor=0a0a0a">
   <img src="https://img.shields.io/badge/ECharts-0a0a0a?style=for-the-badge&logo=apache-echarts&logoColor=AA344D&labelColor=0a0a0a">
+  <img src="https://img.shields.io/badge/Python-0a0a0a?style=for-the-badge&logo=python&logoColor=3776AB&labelColor=0a0a0a">
+  <img src="https://img.shields.io/badge/Flask-0a0a0a?style=for-the-badge&logo=flask&logoColor=white&labelColor=0a0a0a">
+  <img src="https://img.shields.io/badge/Groq_AI-0a0a0a?style=for-the-badge&logo=openai&logoColor=00d4ff&labelColor=0a0a0a">
 </p>
 
 <!-- Animated Typing -->
@@ -52,11 +57,71 @@
 
 </div>
 
-**ZeroRisk Sentinel** is a hybrid cybersecurity platform I built that combines a sleek, terminal-inspired frontend with a powerful Python backend. Drop files, paste URLs, or upload APKs — get instant threat analysis with AI-powered explanations and optional sandbox execution.
+**ZeroRisk Sentinel** is a hybrid cybersecurity platform that combines a sleek, terminal-inspired frontend with a powerful Python backend. Drop files, paste URLs, or upload APKs — get instant threat analysis with AI-powered explanations and optional sandbox execution.
 
 > ⚡ **Live Demo:** [zerorisk-sentinel.vercel.app](https://zerorisk-sentinel.vercel.app/)
 > 
 > 🔧 **Backend Engine:** [github.com/shlokkokk/zerorisk-sentinel-backend](https://github.com/shlokkokk/zerorisk-sentinel-backend)
+
+---
+
+<!-- Matrix Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+## 🤖 Built with AI
+
+<div align="center">
+
+```
++------------------------------------------------------------------+
+|                                                                  |
+|   GROQ AI INTEGRATION (Llama 3.3 70B)                            |
+|                                                                  |
+|   Technical Scan Data        →    Plain English Explanation      |
+|                                                                  |
+|   "YARA: keylogger_windows   →    "This file contains code       |
+|    _api matched                   that can capture keystrokes    |
+|    Entropy: 7.8/8.0               and send them to external      |
+|    VT: 12/70 flagged"             servers. Recommend immediate   |
+|                                   quarantine."                   |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+</div>
+
+ZeroRisk Sentinel uses **Groq's Llama 3.3 70B model** to translate complex technical findings into actionable, human-readable explanations. Instead of just showing "YARA match: keylogger_windows_api", users get clear context about what the threat does, why it matters, and what they should do next.
+
+**AI-Powered Features:**
+- Threat explanation generation from scan results
+- Context-aware risk assessment
+- Actionable security recommendations
+- Fallback to heuristic explanations when AI is unavailable
+
+---
+
+<!-- Matrix Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+## 👥 Who It Helps
+
+<div align="center">
+
+| Audience | How They Benefit |
+|----------|------------------|
+| **Security Students** | Learn malware patterns, YARA rules, and threat indicators hands-on |
+| **Penetration Testers** | Quick file triage before analysis, URL verification during engagements |
+| **SOC Analysts** | Rapid threat assessment with professional report generation |
+| **General Users** | Verify downloads, check suspicious links, audit app permissions |
+| **Developers** | Scan dependencies and third-party libraries for malicious code |
+
+</div>
+
+**Community Impact:**
+- Democratizes access to enterprise-grade threat intelligence
+- Educates users through transparent, explainable analysis
+- Open-source YARA rules for community contribution
+- Privacy-first: client-side analysis keeps data local
 
 ---
 
@@ -104,7 +169,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  ZeroRisk Sentinel                    🟢 Backend Active         │
+│  ZeroRisk Sentinel                              Backend Active   │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │     ╔═══════════════════════════════════════════════════════╗    │
@@ -115,7 +180,7 @@
 │     ║                                                       ║    │
 │     ╚═══════════════════════════════════════════════════════╝    │
 │                                                                  │
-│        [🔴 Live Mode]    [⚪ Demo Mode]    [ ] 🔬 Deep Scan    │
+│        [ Live Mode ]    [ Demo Mode ]    [ ]  Deep Scan          │
 │                                                                  │
 │          ┌──────────┐       ┌──────────┐       ┌──────────┐      │
 │          │    12    │       │    3     │       │    1     │      │
@@ -149,32 +214,32 @@
 
 ```
 +-----------------------------------------------------------------+
-|  ZeroRisk Sentinel                         System Secure        |
+│  ZeroRisk Sentinel                         System Secure        │
 +-----------------------------------------------------------------+
-|                                                                 |
-|     +=======================================================+   |
-|     |  Enter URL to Scan                                    |   |
-|     |                                                       |   |
-|     |  [ https://example.com ]                              |   |
-|     |                                                       |   |
-|     |  [ Deep Scan (Sandbox) ]   [ ANALYZE URL ]            |   |
-|     +=======================================================+   |
-|                                                                 |
-|  +---------------------------------------------------------+    |
-|  |  SAFE URLS               |  HIGH RISK                   |    |
-|  |                          |                              |    |
-|  |  +-------------+         |  +-------------+             |    |
-|  |  | github.com  |         |  | 192.168.x.x |             |    |
-|  |  | stackover.. |         |  | bit.ly/xxx  |             |    |
-|  |  +-------------+         |  +-------------+             |    |
-|  |                          |                              |    |
-|  |   MEDIUM RISK            |  CRITICAL                    |    |
-|  |                          |                              |    |
-|  |  +-------------+         |  +-------------+             |    |
-|  |  | neverssl... |         |  | login-paypal|             |    |
-|  |  +-------------+         |  +-------------+             |    |
-|  +---------------------------------------------------------+    |
-|                                                                 |
+│                                                                 │
+│     +=======================================================+   │
+│     │  Enter URL to Scan                                    │   │
+│     │                                                       │   │
+│     │  [ https://example.com ]                              │   │
+│     │                                                       │   │
+│     │  [ Deep Scan (Sandbox) ]   [ ANALYZE URL ]            │   │
+│     +=======================================================+   │
+│                                                                 │
+│  +---------------------------------------------------------+    │
+│  │  SAFE URLS               │  HIGH RISK                   │    │
+│  │                          │                              │    │
+│  │  +-------------+         │  +-------------+             │    │
+│  │  │ github.com  │         │  │ 192.168.x.x │             │    │
+│  │  │ stackover.. │         │  │ bit.ly/xxx  │             │    │
+│  │  +-------------+         │  +-------------+             │    │
+│  │                          │                              │    │
+│  │   MEDIUM RISK            │  CRITICAL                    │    │
+│  │                          │                              │    │
+│  │  +-------------+         │  +-------------+             │    │
+│  │  │ neverssl... │         │  │ login-paypal│             │    │
+│  │  +-------------+         │  +-------------+             │    │
+│  +---------------------------------------------------------+    │
+│                                                                 │
 +-----------------------------------------------------------------+
 
 ```
@@ -199,36 +264,36 @@
 
 ```
 +-----------------------------------------------------------------+
-|           SECURITY ANALYSIS RESULTS                             |
+│           SECURITY ANALYSIS RESULTS                             │
 +-----------------------------------------------------------------+
-|                                                                 |
-|   +--------+ +--------+ +--------+ +--------+                   |
-|   |   15   | |   12   | |   2    | |   1    |                   |
-|   | Files  | |  Safe  | |Warning | |Critical|                   |
-|   +--------+ +--------+ +--------+ +--------+                   |
-|                                                                 |
-|   +---------------------+    +---------------------+            |
-|   |  THREAT PROXIMITY   |    |   SECURITY SCORE    |            |
-|   |                     |    |                     |            |
-|   |      o ---- o       |    |      +-----+        |            |
-|   |     /    o    \     |    |     /   67  \       |            |
-|   |    o    o      o    |    |    |  /100   |      |            |
-|   |     \    o    /     |    |     \       /       |            |
-|   |      o ---- o       |    |      +-----+        |            |
-|   |                     |    |                     |            |
-|   |  o = Threat Orbit   |    |   Moderate Risk     |            |
-|   +---------------------+    +---------------------+            |
-|                                                                 |
-|  +---------------------------------------------------------+    |
-|  |  suspicious.exe                     [CRITICAL]          |    |
-|  |  |- Threat Score: 85/100                                |    |
-|  |  |- VirusTotal: 12/70 engines flagged                   |    |
-|  |  |- YARA: keylogger_windows_api matched                 |    |
-|  |  +- [View Details] [Download Report]                    |    |
-|  +---------------------------------------------------------+    |
-|                                                                 |
-|              [ GENERATE SUMMARY REPORT ]                        |
-|                                                                 |
+│                                                                 │
+│   +--------+ +--------+ +--------+ +--------+                   │
+│   │   15   │ │   12   │ │   2    │ │   1    │                   │
+│   │ Files  │ │  Safe  │ │Warning │ │Critical│                   │
+│   +--------+ +--------+ +--------+ +--------+                   │
+│                                                                 │
+│   +---------------------+    +---------------------+            │
+│   │  THREAT PROXIMITY   │    │   SECURITY SCORE    │            │
+│   │                     │    │                     │            │
+│   │      o ---- o       │    │      +-----+        │            │
+│   │     /    o    \     │    │     /   67  \       │            │
+│   │    o    o      o    │    │    |  /100   |      │            │
+│   │     \    o    /     │    │     \       /       │            │
+│   │      o ---- o       │    │      +-----+        │            │
+│   │                     │    │                     │            │
+│   │  o = Threat Orbit   │    │   Moderate Risk     │            │
+│   +---------------------+    +---------------------+            │
+│                                                                 │
+│  +---------------------------------------------------------+    │
+│  │  suspicious.exe                     [CRITICAL]          │    │
+│  │  |- Threat Score: 85/100                                │    │
+│  │  |- VirusTotal: 12/70 engines flagged                   │    │
+│  │  |- YARA: keylogger_windows_api matched                 │    │
+│  │  +- [View Details] [Download Report]                    │    │
+│  +---------------------------------------------------------+    │
+│                                                                 │
+│              [ GENERATE SUMMARY REPORT ]                        │
+│                                                                 │
 +-----------------------------------------------------------------+
 
 ```
@@ -260,15 +325,15 @@
 ### Quick Scan
 ```
 +----------------------------------------+
-|  QUICK SCAN FLOW                       |
-|                                        |
-|  1. Sample file headers                |
-|  2. Pattern matching (client-side)     |
-|  3. Extension spoofing detection       |
-|  4. Hash generation                    |
-|  5. Backend YARA scan (if online)      |
-|                                        |
-|  Result: Fast threat assessment        |
+│  QUICK SCAN FLOW                       │
+│                                        │
+│  1. Sample file headers                │
+│  2. Pattern matching (client-side)     │
+│  3. Extension spoofing detection       │
+│  4. Hash generation                    │
+│  5. Backend YARA scan (if online)      │
+│                                        │
+│  Result: Fast threat assessment        │
 +----------------------------------------+
 
 ```
@@ -276,24 +341,24 @@
 ### Deep Scan
 ```
 +----------------------------------------+
-|  DEEP SCAN FLOW                        |
-|                                        |
-|  1. Full file streaming                |
-|  2. Complete YARA rule evaluation      |
-|  3. Entropy analysis                   |
-|  4. VirusTotal hash lookup             |
-|  5. SUBMIT TO SANDBOX                  |
-|                                        |
-|     +-----------------------------+    |
-|     |  HYBRID ANALYSIS SANDBOX    |    |
-|     |  - Isolated Windows VM      |    |
-|     |  - Real-time execution      |    |
-|     |  - Process monitoring       |    |
-|     |  - Network tracking         |    |
-|     |  - MITRE ATT&CK mapping     |    |
-|     +-----------------------------+    |
-|                                        |
-|  Result: Maximum threat intelligence   |
+│  DEEP SCAN FLOW                        │
+│                                        │
+│  1. Full file streaming                │
+│  2. Complete YARA rule evaluation      │
+│  3. Entropy analysis                   │
+│  4. VirusTotal hash lookup             │
+│  5. SUBMIT TO SANDBOX                  │
+│                                        │
+│     +-----------------------------+    │
+│     │  HYBRID ANALYSIS SANDBOX    │    │
+│     │  - Isolated Windows VM      │    │
+│     │  - Real-time execution      │    │
+│     │  - Process monitoring       │    │
+│     │  - Network tracking         │    │
+│     │  - MITRE ATT&CK mapping     │    │
+│     +-----------------------------+    │
+│                                        │
+│  Result: Maximum threat intelligence   │
 +----------------------------------------+
 ```
 
@@ -465,36 +530,36 @@ sessionStorage.setItem("deepScan", "on" | "off");
 
 ```
 +------------------------------------------------------------------+
-|  THREAT DETECTION                                                |
-|  |- File header analysis (magic numbers)                         |
-|  |- Extension spoofing detection                                 |
-|  |- YARA rule matching (via backend)                             |
-|  |- Entropy analysis (packed/encrypted detection)                |
-|  +- VirusTotal hash lookup                                       |
+│  THREAT DETECTION                                                │
+│  |- File header analysis (magic numbers)                         │
+│  |- Extension spoofing detection                                 │
+│  |- YARA rule matching (via backend)                             │
+│  |- Entropy analysis (packed/encrypted detection)                │
+│  +- VirusTotal hash lookup                                       │
 +------------------------------------------------------------------+
-|  URL SECURITY                                                    |
-|  |- Google Safe Browsing API                                     |
-|  |- URLHaus malware database                                     |
-|  |- VirusTotal URL scan (70+ engines)                            |
-|  |- SSL certificate validation                                   |
-|  |- DNS record analysis                                          |
-|  +- Live browser sandbox (urlscan.io)                            |
+│  URL SECURITY                                                    │
+│  |- Google Safe Browsing API                                     │
+│  |- URLHaus malware database                                     │
+│  |- VirusTotal URL scan (70+ engines)                            │
+│  |- SSL certificate validation                                   │
+│  |- DNS record analysis                                          │
+│  +- Live browser sandbox (urlscan.io)                            │
 +------------------------------------------------------------------+
-|  APK ANALYSIS                                                    |
-|  |- Permission risk scoring                                      |
-|  |- Metadata extraction                                          |
-|  |- Component enumeration                                        |
-|  +- VirusTotal APK lookup                                        |
+│  APK ANALYSIS                                                    │
+│  |- Permission risk scoring                                      │
+│  |- Metadata extraction                                          │
+│  |- Component enumeration                                        │
+│  +- VirusTotal APK lookup                                        │
 +------------------------------------------------------------------+
-|  AI EXPLANATIONS                                                 |
-|  +- Groq LLM (Llama 3.3 70B) threat analysis                     |
+│  AI EXPLANATIONS                                                 │
+│  +- Groq LLM (Llama 3.3 70B) threat analysis                     │
 +------------------------------------------------------------------+
-|  SANDBOX ANALYSIS                                                |
-|  |- File execution (Hybrid Analysis)                             |
-|  |- URL browsing (urlscan.io)                                    |
-|  |- Process monitoring                                           |
-|  |- Network tracking                                             |
-|  +- Screenshot capture                                           |
+│  SANDBOX ANALYSIS                                                │
+│  |- File execution (Hybrid Analysis)                             │
+│  |- URL browsing (urlscan.io)                                    │
+│  |- Process monitoring                                           │
+│  |- Network tracking                                             │
+│  +- Screenshot capture                                           │
 +------------------------------------------------------------------+
 
 ```

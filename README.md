@@ -68,6 +68,20 @@
 <!-- Matrix Divider -->
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
+## 👥 Who It Helps
+
+<div align="center">
+
+| Audience | How They Benefit |
+|----------|------------------|
+| **Security Students** | Learn malware patterns, YARA rules, and threat indicators hands-on |
+| **Penetration Testers** | Quick file triage before analysis, URL verification during engagements |
+| **SOC Analysts** | Rapid threat assessment with professional report generation |
+| **General Users** | Verify downloads, check suspicious links, audit app permissions |
+| **Developers** | Scan dependencies and third-party libraries for malicious code |
+
+</div>
+
 ## 🤖 Built with AI
 
 <div align="center">
@@ -98,24 +112,25 @@ ZeroRisk Sentinel uses **Groq's Llama 3.3 70B model** to translate complex techn
 - Actionable security recommendations
 - Fallback to heuristic explanations when AI is unavailable
 
+**Example Output:**
+
+Instead of just showing "YARA match: keylogger_windows_api", ZeroRisk Sentinel generates:
+
+> *"This file exhibits multiple coordinated behaviors associated with spyware. 
+> The SetWindowsHookEx API call indicates potential keystroke monitoring capability. 
+> Combined with network communication patterns, this suggests possible credential 
+> harvesting functionality."*
 ---
 
 <!-- Matrix Divider -->
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
-## 👥 Who It Helps
+## 🌐 Built for the Community
 
-<div align="center">
-
-| Audience | How They Benefit |
-|----------|------------------|
-| **Security Students** | Learn malware patterns, YARA rules, and threat indicators hands-on |
-| **Penetration Testers** | Quick file triage before analysis, URL verification during engagements |
-| **SOC Analysts** | Rapid threat assessment with professional report generation |
-| **General Users** | Verify downloads, check suspicious links, audit app permissions |
-| **Developers** | Scan dependencies and third-party libraries for malicious code |
-
-</div>
+- **Free & Open Source**: No paywalls, no API keys required for basic use
+- **Educational**: Every detection explains *why* it's suspicious
+- **Privacy-First**: Files analyzed locally, never uploaded without consent
+- **Extensible**: Community can contribute YARA rules and detection patterns
 
 **Community Impact:**
 - Democratizes access to enterprise-grade threat intelligence

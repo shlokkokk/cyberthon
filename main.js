@@ -2251,6 +2251,32 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBackendStatus();
     setInterval(updateBackendStatus, 30000);
   }
+  // Backend warning dismissal
+function dismissBackendWarning() {
+    const warning = document.getElementById('backendWarning');
+    if (warning) {
+        warning.style.opacity = '0';
+        warning.style.transform = 'translateX(-50%) translateY(-20px)';
+        warning.style.transition = 'all 0.3s ease';
+        setTimeout(() => warning.remove(), 300);
+    }
+}
+
+// Auto-hide warning when backend becomes active
+const backendCheckInterval = setInterval(() => {
+    const statusText = document.getElementById('backendStatusText');
+    const warning = document.getElementById('backendWarning');
+    
+    if (statusText && warning) {
+        if (statusText.textContent.includes('Backend Active')) {
+            warning.style.opacity = '0';
+            warning.style.transform = 'translateX(-50%) translateY(-20px)';
+            warning.style.transition = 'all 0.5s ease';
+            setTimeout(() => warning.remove(), 500);
+            clearInterval(backendCheckInterval);
+        }
+    }
+}, 2000);
 });
 
 // Add some utility functions for enhanced functionality

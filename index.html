@@ -332,7 +332,31 @@ body {
             </div>
         </div>
     </nav>
-    
+<!-- Backend Wake-up Warning -->
+<div id="backendWarning" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 max-w-md w-full mx-4">
+    <div class="bg-yellow-600/90 backdrop-blur-sm border border-yellow-400 rounded-lg p-4 shadow-lg shadow-yellow-500/20 animate-pulse">
+        <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+                <svg class="w-6 h-6 text-yellow-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-yellow-100 font-semibold text-sm">⏳ Backend Waking Up...</h3>
+                <p class="text-yellow-200/90 text-xs mt-1">
+                    Render free tier is spinning up. Please wait for the top-right badge to show 
+                    <span class="font-mono bg-yellow-800/50 px-1 rounded text-yellow-100">Backend Active (Better scanning)</span> 
+                    before scanning files for best results.
+                </p>
+            </div>
+            <button onclick="dismissBackendWarning()" class="text-yellow-200/70 hover:text-yellow-100 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
     <main class="pt-20 pb-12">
 
         <section class="relative min-h-screen flex items-center justify-center px-4">

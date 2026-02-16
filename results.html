@@ -294,14 +294,80 @@
       .apk-card .keylogger-section {
         display: none;
       }
-  .report-btn-container:hover .coming-soon-tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) scale(1);
-  }
-  .report-btn-container:hover .report-btn-glow {
-    opacity: 0.6;
-  }
+      /* AbuseIPDB & SecurityTrails Cards */
+      .analysis-card .grid.grid-cols-2.gap-2 {
+          gap: 0.5rem;
+      }
+
+      .analysis-card .p-3.rounded-lg.border {
+          transition: all 0.3s ease;
+      }
+
+      .analysis-card .p-3.rounded-lg.border:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Intel service badges */
+      .intel-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: 500;
+      }
+
+      .intel-badge.clean {
+          background: rgba(0, 255, 65, 0.15);
+          color: #00ff41;
+          border: 1px solid rgba(0, 255, 65, 0.3);
+      }
+
+      .intel-badge.suspicious {
+          background: rgba(255, 107, 53, 0.15);
+          color: #ff6b35;
+          border: 1px solid rgba(255, 107, 53, 0.3);
+      }
+
+      .intel-badge.flagged {
+          background: rgba(220, 20, 60, 0.15);
+          color: #dc143c;
+          border: 1px solid rgba(220, 20, 60, 0.3);
+      }
+     .report-btn-container:hover .coming-soon-tooltip {
+       opacity: 1;
+       visibility: visible;
+       transform: translateX(-50%) scale(1);
+     }
+     .report-btn-container:hover .report-btn-glow {
+       opacity: 0.6;
+     }
+    /* Make intel cards same height with aligned footer */
+    .intel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+    
+    .intel-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .intel-card-content {
+        flex: 1;
+    }
+    
+    .intel-card-footer {
+        margin-top: auto;
+        padding-top: 0.5rem;
+        border-top: 1px solid #4b5563;  /* lighter gray */
+        font-size: 0.7rem;  /* smaller text */
+        color: #6b7280;  /* darker gray, less prominent */
+    }
     </style>
 </head>
   <body>
@@ -981,13 +1047,17 @@ function renderURLResults(urlData) {
         "malicious_verdict": "ZeroRisk Sentinel's sandbox detected malicious behavior during actual browser execution.",
         "suspicious_verdict": "Suspicious patterns were observed when the page was loaded in a sandboxed browser.",
         "phishing_detected": "The page structure and content match known phishing patterns.",
-        "suspicious_resources": "The page loaded content from domains with poor reputation."
+        "suspicious_resources": "The page loaded content from domains with poor reputation.",
+        "abuseipdb_flagged": "This IP/domain has been reported for abusive behavior multiple times in our threat intelligence network.",
+        "securitytrails_suspicious": "Domain intelligence indicates suspicious characteristics like low reputation or excessive subdomains."
     };
     
     const serviceExplanations = {
         google_safe_browsing: "Google's database of known malicious URLs",
         urlhaus: "Community-driven malware URL database",
         virustotal_url: "Aggregated scan results from 70+ security vendors",
+        abuseipdb: "AbuseIPDB - IP reputation and abuse report database",
+        securitytrails: "SecurityTrails - Domain intelligence and historical DNS data",
         ssl: "Certificate validity and security configuration",
         domain_age: "How long the domain has been registered",
         redirects: "Chain of redirects to final destination",
@@ -1095,6 +1165,79 @@ function renderURLResults(urlData) {
                     </div>
                     <div class="mt-1"><span class="text-purple-400">Sandbox analysis completed</span></div>
                     <div class="text-xs text-gray-500 mt-1">${serviceExplanations.urlscan_io}</div>
+                </div>
+            `;
+        }
+        
+        //  ABUSEIPDB & SECURITYTRAILS SECTION 
+        let intelServicesHtml = "";
+        
+        // AbuseIPDB
+        if (r.services?.abuseipdb?.available) {
+            const abuse = r.services.abuseipdb;
+            const abuseStatusClass = abuse.suspicious 
+                ? "bg-orange-500 bg-opacity-20 border-orange-500" 
+                : "bg-green-500 bg-opacity-10 border-green-500";
+            const abuseIcon = abuse.suspicious ? "🚨" : "✅";
+            const abuseText = abuse.suspicious 
+                ? `<span class="text-orange-400 font-bold">${abuse.abuse_confidence}% Confidence</span>` 
+                : '<span class="text-green-400">Clean Reputation</span>';
+            
+            intelServicesHtml += `
+                <div class="intel-card p-3 rounded-lg ${abuseStatusClass} border bg-opacity-20">
+                    <div class="intel-card-content">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 text-sm font-semibold">🛡️ AbuseIPDB</span>
+                            ${abuseIcon}
+                        </div>
+                        <div class="mt-1 mb-2">${abuseText}</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                            <div><span class="text-gray-500">Reports:</span> ${abuse.total_reports || 0}</div>
+                            ${abuse.isp ? `<div><span class="text-gray-500">ISP:</span> ${abuse.isp}</div>` : ''}
+                            ${abuse.country ? `<div><span class="text-gray-500">Country:</span> ${abuse.country}</div>` : ''}
+                            ${abuse.last_reported ? `<div><span class="text-gray-500">Last:</span> ${new Date(abuse.last_reported).toLocaleDateString()}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="intel-card-footer">${serviceExplanations.abuseipdb}</div>
+                </div>
+            `;
+        }
+        
+        // SecurityTrails
+        if (r.services?.securitytrails?.available) {
+            const st = r.services.securitytrails;
+            const stStatusClass = st.suspicious 
+                ? "bg-yellow-500 bg-opacity-20 border-yellow-500" 
+                : "bg-green-500 bg-opacity-10 border-green-500";
+            const stIcon = st.suspicious ? "⚠️" : "✅";
+            const stText = st.suspicious 
+                ? `<span class="text-yellow-400 font-bold">Low Reputation</span>` 
+                : '<span class="text-green-400">Normal Reputation</span>';
+            
+            intelServicesHtml += `
+                <div class="intel-card p-3 rounded-lg ${stStatusClass} border bg-opacity-20">
+                    <div class="intel-card-content">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 text-sm font-semibold">🔍 SecurityTrails</span>
+                            ${stIcon}
+                        </div>
+                        <div class="mt-1 mb-2">${stText}</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                            ${st.alexa_rank ? `<div><span class="text-gray-500">Alexa:</span> #${st.alexa_rank.toLocaleString()}</div>` : ''}
+                            <div><span class="text-gray-500">Subdomains:</span> ${st.subdomain_count || 0}</div>
+                            <div><span class="text-gray-500">MX:</span> ${st.has_mx ? 'Yes' : 'No'}</div>
+                            ${st.whois_history_count ? `<div><span class="text-gray-500">WHOIS History:</span> ${st.whois_history_count}</div>` : ''}
+                        </div>
+                        ${st.subdomains && st.subdomains.length > 0 ? `
+                            <div class="mt-2">
+                                <div class="text-xs text-gray-500 mb-1">Sample Subdomains:</div>
+                                <div class="flex flex-wrap gap-1">
+                                    ${st.subdomains.slice(0, 3).map(s => `<span class="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs rounded">${s}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="intel-card-footer">${serviceExplanations.securitytrails}</div>
                 </div>
             `;
         }
@@ -1465,12 +1608,28 @@ let visualSection = '';
             
             <!-- THREAT INTELLIGENCE (Shows for BOTH regular AND deep scan) -->
             <div class="mb-4">
-                <h4 class="text-gray-400 text-sm mb-2 font-semibold uppercase tracking-wider">🛡️ Threat Intelligence</h4>
-                ${threatIntelHtml || `
-                    <div class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-400 text-sm">
-                        No additional threat intelligence data available
+                <h4 class="text-gray-400 text-sm mb-3 font-semibold uppercase tracking-wider flex items-center">
+                    <span class="mr-2">🛡️</span> Threat Intelligence
+                </h4>
+                
+                <!-- Primary Intel: GSB, URLHaus, VT, Deep Scan -->
+                ${threatIntelHtml || ''}
+                
+                <!-- Secondary Intel: AbuseIPDB, SecurityTrails -->
+                ${intelServicesHtml ? `
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <h5 class="text-gray-500 text-xs mb-2 uppercase tracking-wider">Additional Intelligence</h5>
+                        <div class="intel-grid">
+                            ${intelServicesHtml}
+                        </div>
                     </div>
-                `}
+                ` : ''}
+                
+                ${!threatIntelHtml && !intelServicesHtml ? `
+                    <div class="p-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-400 text-sm">
+                        No threat intelligence data available
+                    </div>
+                ` : ''}
             </div>
             
             <!-- TECHNICAL DETAILS -->

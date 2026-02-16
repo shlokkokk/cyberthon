@@ -265,6 +265,8 @@ Instead of just showing "YARA match: keylogger_windows_api", ZeroRisk Sentinel g
 - 🔍 Google Safe Browsing API
 - 🛡️ URLHaus Database
 - 🦠 VirusTotal (70+ engines)
+- 🔶 AbuseIPDB — IP reputation & abuse reports
+- 🔷 SecurityTrails — Domain intelligence & subdomains
 - 🔒 SSL Certificate Analysis
 - 🌐 DNS Records (A, MX, TXT/SPF)
 - ➡️ Redirect Chain Following
@@ -556,6 +558,8 @@ sessionStorage.setItem("deepScan", "on" | "off");
 │  |- Google Safe Browsing API                                     │
 │  |- URLHaus malware database                                     │
 │  |- VirusTotal URL scan (70+ engines)                            │
+│  |- AbuseIPDB IP reputation checks                               │
+│  |- SecurityTrails domain intelligence                           │
 │  |- SSL certificate validation                                   │
 │  |- DNS record analysis                                          │
 │  +- Live browser sandbox (urlscan.io)                            │

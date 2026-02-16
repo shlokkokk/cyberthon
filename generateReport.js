@@ -898,6 +898,14 @@ async function generatePDFReport(fileData, urlData) {
         const v = services.virustotal_url;
         svcLines.push(`VirusTotal: ${(v.malicious || 0)}/${v.total || 70} flagged`);
       }
+      if (services.abuseipdb?.available) {
+        const a = services.abuseipdb;
+        svcLines.push(`AbuseIPDB: ${a.suspicious ? `${a.abuse_confidence}% Confidence` : "Clean"} (${a.total_reports || 0} reports)`);
+      }
+      if (services.securitytrails?.available) {
+        const s = services.securitytrails;
+        svcLines.push(`SecurityTrails: ${s.suspicious ? "Low Reputation" : "Normal"} (${s.subdomain_count || 0} subdomains)`);
+      }
 
       const indLines = findings.length
         ? findings.slice(0, 4).flatMap((f) => split(`• ${safeStr(f.description, "")}`, innerW, 8, FONT.base, "normal"))

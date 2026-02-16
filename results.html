@@ -1194,31 +1194,63 @@ let deepScanHtml = "";
                 </div>
             ` : '';
             
-            let visualSection = '';
+let visualSection = '';
             const hasScreenshot = us.screenshot;
-            const hasConsole = us.console_logs && us.console_logs.length > 0;
+            const consoleLogs = us.console_logs || [];
+            const hasConsole = consoleLogs.length > 0;
+            
+            // Format console logs - backend now normalizes the format
+            const formattedLogs = hasConsole ? consoleLogs.map((log, idx) => {
+                try {
+                    // Backend normalizes to: { text: "...", level: "...", source: "..." }
+                    let logText = log.text || '';
+                    let level = log.level || 'log';
+                    let source = log.source || '';
+                    
+                    // Fallback for old format or edge cases
+                    if (!logText && typeof log === 'object') {
+                        logText = log.message?.text || log.message || JSON.stringify(log);
+                        level = log.message?.level || log.level || 'log';
+                        source = log.message?.source || log.source || '';
+                    }
+                    if (!logText && typeof log === 'string') {
+                        logText = log;
+                    }
+                    
+                    // Skip empty logs
+                    if (!logText || logText === 'null' || logText === 'undefined' || logText.trim() === '') {
+                        return '';
+                    }
+                    
+                    let colorClass = 'text-gray-400';
+                    let icon = '>';
+                    const levelLower = String(level).toLowerCase();
+                    
+                    if (levelLower === 'error' || levelLower === 'severe') {
+                        colorClass = 'text-red-400';
+                        icon = '✖';
+                    } else if (levelLower === 'warning' || levelLower === 'warn') {
+                        colorClass = 'text-yellow-400';
+                        icon = '⚠';
+                    } else if (levelLower === 'info') {
+                        colorClass = 'text-blue-400';
+                        icon = 'ℹ';
+                    } else if (levelLower === 'debug') {
+                        colorClass = 'text-purple-400';
+                        icon = '◆';
+                    }
+                    
+                    const sourceInfo = source ? `<span class="text-gray-600">[${source}]</span> ` : '';
+                    
+                    return `<div class="${colorClass} mb-1 whitespace-nowrap px-1 hover:bg-gray-800 rounded cursor-default" title="${logText.replace(/\"/g, '&quot;')}">
+                        <span class="opacity-50 mr-1">${icon}</span>${sourceInfo}${logText}
+                    </div>`;
+                } catch (e) {
+                    return '';
+                }
+            }).filter(entry => entry !== '').join('') : '';
             
             if (hasScreenshot || hasConsole) {
-                const formattedLogs = hasConsole ? us.console_logs.map(log => {
-                    let logText = '';
-                    if (typeof log === 'object' && log !== null) {
-                        const msg = log.message || log;
-                        if (typeof msg === 'object') {
-                            logText = msg.text || JSON.stringify(log);
-                        } else {
-                            logText = String(msg);
-                        }
-                    } else {
-                        logText = String(log);
-                    }
-                    let colorClass = 'text-gray-400';
-                    const level = (log.message && log.message.level) || log.level;
-                    if (level === 'error') colorClass = 'text-red-400';
-                    if (level === 'warning') colorClass = 'text-yellow-400';
-                    
-                    return `<div class="${colorClass} mb-1 whitespace-nowrap px-1 hover:bg-gray-800 rounded cursor-default" title="${logText}">${logText}</div>`;
-                }).join('') : '';
-                
                 visualSection = `
                     <div class="mb-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1238,11 +1270,20 @@ let deepScanHtml = "";
                                 <h4 class="text-gray-400 text-sm mb-2 font-semibold uppercase tracking-wider">Console Logs (${us.console_logs.length})</h4>
                                 <div class="flex-1 overflow-auto bg-black rounded-lg p-2 text-xs font-mono border border-gray-700" style="scrollbar-width: thin; scrollbar-color: #00d4ff #1a1a1a;">
                                     <div class="min-w-max">
-                                        ${formattedLogs}
+                                        ${formattedLogs || '<div class="text-gray-500 italic p-2">No readable console output captured</div>'}
                                     </div>
                                 </div>
                             </div>
                             ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                visualSection = `
+                    <div class="mb-4 p-4 rounded-lg bg-gray-800/50 border border-gray-700">
+                        <div class="flex items-center text-gray-400 text-sm">
+                            <span class="mr-2">ℹ️</span>
+                            <span>No screenshot or console logs available for this scan. This is normal for sites that don't render visible content or produce console output.</span>
                         </div>
                     </div>
                 `;

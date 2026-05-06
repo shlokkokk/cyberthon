@@ -1,4 +1,10 @@
+/**
+ * ZeroRisk Sentinel - URL Analysis Engine
+ * Last Audit: 2026-05-06
+ * Version: 2.2-STABLE
+ */
 const BACKEND_URL = 'https://zerorisk-sentinel-backend.onrender.com';
+
 const BACKEND_TIMEOUT = 25000;
 
 // Main analyze function with timeout and fallback

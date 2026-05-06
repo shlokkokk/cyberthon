@@ -1,4 +1,10 @@
+/**
+ * ZeroRisk Sentinel - Report Generation Utility
+ * Last Audit: 2026-05-06
+ * Version: 2.2-STABLE
+ */
 const REPORT_VERSION = "2.2.0";
+
 let selectedFormat = null;
 
 //  CHART DATA CALCULATION 

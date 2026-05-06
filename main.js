@@ -1,4 +1,11 @@
+/**
+ * ZeroRisk Sentinel - Main Analysis Engine
+ * Last Audit: 2026-05-06
+ * Version: 2.2-STABLE
+ */
+
 function generateRiskExplanation(analysis) {
+
   const level = analysis.threatLevel;
   const score = analysis.threatScore;
   const p = analysis.spywareProfile;

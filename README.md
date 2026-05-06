@@ -1,4 +1,6 @@
+<!-- Last Audit: 2026-05-06 | Version: 2.2-STABLE -->
 <div align="center">
+
 
 <!-- Animated Header -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00d4ff,50:00ff41,100:dc143c&height=250&section=header&text=ZeroRisk%20Sentinel&fontSize=60&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Advanced%20Cybersecurity%20Analysis%20Platform&descAlignY=55&descSize=18" />
@@ -398,7 +400,8 @@ Instead of just showing "YARA match: keylogger_windows_api", ZeroRisk Sentinel g
 {
   "reportMetadata": {
     "toolName": "ZeroRisk Sentinel",
-    "version": "2.2.0",
+    "version": "2.2.0 [STABLE]",
+
     "generatedAt": "2025-01-15T10:30:00Z"
   },
   "executiveSummary": {

@@ -1,7 +1,6 @@
 ZeroRisk-Sentinel-demo-video.mp4
 thumbnail.png
 thumbnail.jpg
-favicon.png
 todo.md
 
 # Documentation & Assets
@@ -10,4 +9,4 @@ todo.md
 *.ppt
 *.mp4
 *.mov
-*.avi
+*.avi
